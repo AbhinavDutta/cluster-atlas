@@ -1,3 +1,5 @@
+import {top50} from './top50.js';
+import {extraClusters,enrichRanked} from './catalog-expansion.js';
 const source=(title,url)=>({title,url});
 const TOP=source("TOP500 · June 2026","https://www.top500.org/lists/top500/2026/06/");
 const P=(name,count,cpu,cpus,gpu,gpus,ram,vram,link="Not verified",extra={})=>({name,count,cpu,cpus,gpu,gpus,ram,vram,link,disk:"Not verified",hostLink:"Not verified",...extra});
@@ -54,8 +56,15 @@ S("deltaai","DeltaAI","NCSA · University of Illinois","United States",null,null
  P("GH200 ×4",152,"NVIDIA Grace · 72 cores",4,"NVIDIA Hopper (GH200)",4,"480 GB LPDDR5","96 GB HBM3 per GPU","NVLink · all GPU pairs",{hostLink:"NVLink-C2C",paired:true,nic:4,disk:"3.9 TB local"})
 ],[source("NCSA · DeltaAI architecture","https://docs.ncsa.illinois.edu/systems/deltaai/en/latest/user-guide/architecture.html")],"152 compute nodes: 132 NSF/NAIRR-funded and 20 Illinois Computes-funded. Four Grace-Hopper superchips per node.")
 ];
+// Preserve richer existing profiles and stable links; update their ranking metadata.
+for(const record of top50){
+ const existing=clusters.find(c=>c.id===record.id || c.rank===record.rank || (record.rank===9&&c.id==='fugaku') || (record.rank===5&&c.id==='jupiter'));
+ if(existing){existing.rank=record.rank;existing.rmax=record.rmax;if(!existing.sources.some(s=>s.url===record.sources[1].url))existing.sources.push(record.sources[1]);}
+ else clusters.push(enrichRanked(record));
+}
+clusters.push(...extraClusters);
 export const catalogDate="13 September 2026";
 export function normalize(s){return s.toLowerCase().replace(/[^a-z0-9]/g,"")}
 export function distance(a,b){let v=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let w=[i];for(let j=1;j<=b.length;j++)w[j]=Math.min(w[j-1]+1,v[j]+1,v[j-1]+(a[i-1]!==b[j-1]));v=w}return v[b.length]}
-export function matchCluster(query){let q=normalize(query);if(!q)return null;let ranked=clusters.map(c=>{let names=[c.id,c.name,...(c.id==="jupiter"?["jupiter"]:[])].map(normalize);let exact=names.some(n=>q===n);let contained=names.filter(n=>q.includes(n)).sort((a,b)=>b.length-a.length)[0];let words=query.toLowerCase().split(/\s+/).map(normalize).filter(Boolean);let d=Math.min(...names.flatMap(n=>[q,...words].map(w=>distance(n,w)/Math.max(n.length,w.length))));return {c,score:exact?2:contained?1+contained.length/100:1-d}}).sort((a,b)=>b.score-a.score);return ranked[0].score>=.73?ranked[0].c:null}
+export function matchCluster(query){let q=normalize(query);if(!q)return null;let ranked=clusters.map(c=>{let names=[c.id,c.name,...(c.aliases||[]),...(c.id==="jupiter"?["jupiter"]:[])].map(normalize);let exact=names.some(n=>q===n);let contained=names.filter(n=>q.includes(n)).sort((a,b)=>b.length-a.length)[0];let words=query.toLowerCase().split(/\s+/).map(normalize).filter(Boolean);let d=Math.min(...names.flatMap(n=>[q,...words].map(w=>distance(n,w)/Math.max(n.length,w.length))));return {c,score:exact?2:contained?1+contained.length/100:1-d}}).sort((a,b)=>b.score-a.score);return ranked[0].score>=.73?ranked[0].c:null}
 
