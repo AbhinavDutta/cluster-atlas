@@ -1,3 +1,4 @@
+import {initDiscovery} from './discovery.js';
 import {initComparison} from './compare.js';
 import {initWorldMap} from './world-map.js';
 import {clusters,catalogDate,matchCluster} from './data.js';
@@ -108,6 +109,7 @@ $('#sourcesBtn').onclick=sources;$('#sourceLink').onclick=sources;$('#closeDialo
 const worldMap=initWorldMap(clusters,c=>{selectCluster(c);const heading=document.querySelector('.clusterhead');heading.scrollIntoView({block:'start'});heading.focus({preventScroll:true})});
 const initial=clusters.find(c=>c.id===location.hash.slice(1));if(initial)cluster=initial;render();
 initComparison(clusters,()=>({cluster,pi}));
+initDiscovery(clusters,(c,index)=>{selectCluster(c);pi=index;view='inside';render();document.querySelector('.clusterhead').scrollIntoView({block:'start'});document.querySelector('.clusterhead').focus({preventScroll:true});},(c,index)=>{selectCluster(c);pi=index;render();document.querySelector('#compareBtn').click();});
 
 
 function partialNode(p){
