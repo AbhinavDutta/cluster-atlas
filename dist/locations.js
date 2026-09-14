@@ -32,16 +32,15 @@ Object.assign(locations, {
  expanse:{city:'San Diego, California',lat:32.88,lon:-117.24,source:'https://www.sdsc.edu/systems/expanse/index.html'}
 });
 
-// Country-level map anchors are representative points, never claimed site coordinates.
-const countryAnchors = {
- 'United States':[39,-98], Netherlands:[52,5], Spain:[40,-4], 'South Korea':[36,128],
- Japan:[36,138], 'Saudi Arabia':[24,45], France:[47,2], Greece:[39,23], India:[22,79],
- Taiwan:[24,121], 'United Kingdom':[54,-2], 'South Africa':[-29,24], Brazil:[-14,-52],
- Sweden:[62,15], Denmark:[56,10], Singapore:[1.35,103.82], 'United Arab Emirates':[24,54], Israel:[31.5,35]
-};
+// Only pins with a sourced host city are rendered. No country-centroid fallback.
+Object.assign(locations, {
+ 'marenostrum-5-acc':{city:'Barcelona',lat:41.39,lon:2.17,source:'https://res2.bsc.es/en/about-res/nodes/marenostrum-5-bsc'},
+ derecho:{city:'Cheyenne, Wyoming',lat:41.14,lon:-104.82,source:'https://visualizations.ucar.edu/visualizations/derecho-graphics/'},
+ stampede3:{...locations.frontera,source:'https://docs.tacc.utexas.edu/hpc/stampede3/'},
+ 'arrhenius-gpu':{city:'Linköping',lat:58.41,lon:15.62,source:'https://www.naiss.se/resources/'},
+ 'shaheen-iii-gpu':{city:'Thuwal · KAUST',lat:22.30,lon:39.11,source:'https://leap.kaust.edu.sa/scientific-computing-center-upgrade.html'},
+ 'jean-zay-h100':{city:'Orsay',lat:48.70,lon:2.18,source:'https://visitesinsolites.cnrs.fr/visite/le-supercalculateur-jean-zay-un-ocean-de-calcul/'}
+});
 export function locationFor(cluster) {
- if(locations[cluster.id])return {...locations[cluster.id],precision:'Approximate city location'};
- const point=countryAnchors[cluster.country];
- if(!point)throw new Error('Add a map anchor for '+cluster.country);
- return {lat:point[0],lon:point[1],city:cluster.id==='rainier'?'Multiple sites · country-level marker':'Country-level marker · site location unverified',precision:'Country only · not a facility location',approximate:true,source:cluster.sources[0].url};
+ return locations[cluster.id]?{...locations[cluster.id],precision:'Approximate city location'}:null;
 }
