@@ -1,3 +1,4 @@
+import {initWorldMap} from './world-map.js';
 import {clusters,catalogDate,matchCluster} from './data.js';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const fmt=n=>n==null?'Not verified':n.toLocaleString('en-US');
@@ -6,7 +7,7 @@ let cluster=clusters[0],pi=0,view='network',selected=0,zoom=1,detail=null,raf=0,
 const part=()=>cluster.parts[pi], total=()=>cluster.parts.some(p=>p.count==null)?null:cluster.parts.reduce((s,p)=>s+p.count,0);
 function list(){ $('#clusterList').innerHTML=clusters.filter(c=>c.rank>=1&&c.rank<=10).sort((a,b)=>a.rank-b.rank).map(c=>'<button class="clusteritem '+(c===cluster?'active':'')+'" data-cluster="'+c.id+'" aria-pressed="'+(c===cluster)+'"><span class="clustericon">▦</span><span><strong>'+c.name+'</strong><small>'+c.country+'</small></span><span class="listrank">'+(c.rank?'#'+c.rank:'')+'</span></button>').join(''); }
 function selectCluster(c){cluster=c;pi=0;selected=0;view='network';zoom=1;detail=null;render();history.replaceState(null,'','#'+c.id)}
-function render(){list();$('#location').textContent=cluster.country.toUpperCase()+' / '+(cluster.rank?'TOP500':'US RESEARCH');$('#clusterName').textContent=cluster.name;$('#institution').textContent=cluster.site;$('#rank').textContent=cluster.rank?'#'+cluster.rank+' · JUN 2026':'RESEARCH CLUSTER';
+function render(){worldMap.select(cluster.id);list();$('#location').textContent=cluster.country.toUpperCase()+' / '+(cluster.rank?'TOP500':'US RESEARCH');$('#clusterName').textContent=cluster.name;$('#institution').textContent=cluster.site;$('#rank').textContent=cluster.rank?'#'+cluster.rank+' · JUN 2026':'RESEARCH CLUSTER';
  let accelerators=cluster.parts.some(p=>p.count==null&&p.gpus)?null:cluster.parts.reduce((s,p)=>s+(p.count||0)*p.gpus,0);
  $('#stats').innerHTML=[['COMPUTE NODES',fmt(total()),'documented inventory'],['ACCELERATORS',fmt(accelerators),'physical GPUs / APUs'],['NODE TYPES',cluster.parts.length,'configurations'],['NETWORK TOPOLOGY',cluster.topology,'schematic view']].map((s,i)=>'<div class="stat"><label>'+s[0]+'</label><strong class="'+(i===3||String(s[1]).length>10?'textstat':'')+'">'+s[1]+'</strong><br><small style="margin-left:0">'+s[2]+'</small></div>').join('');
  $('#partition').innerHTML=cluster.parts.map((p,i)=>'<option value="'+i+'">'+p.name+'</option>').join('');$('#partition').value=pi;$('#partitionCount').textContent=fmt(part().count)+' nodes';
@@ -103,5 +104,6 @@ $('#partition').onchange=e=>{pi=Number(e.target.value);selected=0;zoom=1;detail=
 $('#reset').onclick=()=>{selected=0;zoom=1;setView('network')};
 $('#searchForm').onsubmit=e=>{e.preventDefault();let query=$('#search').value.trim();if(!query){$('#searchStatus').textContent='Enter a cluster name, such as Perlmutter.';return}let c=matchCluster(query);$('#searchStatus').className=c?'':'noresult';$('#searchStatus').textContent=c?'Showing '+c.name+'.':'We do not have information for “'+query+'” yet. Coverage can be added in a future catalog update.';if(c){selectCluster(c)}};
 $('#sourcesBtn').onclick=sources;$('#sourceLink').onclick=sources;$('#closeDialog').onclick=()=>$('#sourceDialog').close();$('#sourceDialog').onclick=e=>{if(e.target===$('#sourceDialog')){let r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close()}};
+const worldMap=initWorldMap(clusters,c=>{selectCluster(c);const heading=document.querySelector('.clusterhead');heading.scrollIntoView({block:'start'});heading.focus({preventScroll:true})});
 const initial=clusters.find(c=>c.id===location.hash.slice(1));if(initial)cluster=initial;render();
 
