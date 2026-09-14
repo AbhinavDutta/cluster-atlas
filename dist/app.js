@@ -1,3 +1,4 @@
+import {readView,initSharing} from './sharing.js';
 import {initDiscovery} from './discovery.js';
 import {initComparison} from './compare.js';
 import {initWorldMap} from './world-map.js';
@@ -112,8 +113,12 @@ $('#reset').onclick=()=>{selected=0;zoom=1;setView('network')};
 $('#searchForm').onsubmit=e=>{e.preventDefault();let query=$('#search').value.trim();if(!query){$('#searchStatus').textContent='Enter a cluster name, such as Perlmutter.';return}let c=matchCluster(query);$('#searchStatus').className=c?'':'noresult';$('#searchStatus').textContent=c?'Showing '+c.name+'.':'We do not have information for “'+query+'” yet. Coverage can be added in a future catalog update.';if(c){selectCluster(c)}};
 $('#sourcesBtn').onclick=sources;$('#sourceLink').onclick=sources;$('#closeDialog').onclick=()=>$('#sourceDialog').close();$('#sourceDialog').onclick=e=>{if(e.target===$('#sourceDialog')){let r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close()}};
 const worldMap=initWorldMap(clusters,c=>{selectCluster(c);const heading=document.querySelector('.clusterhead');heading.scrollIntoView({block:'start'});heading.focus({preventScroll:true})});
-const initial=clusters.find(c=>c.id===location.hash.slice(1));if(initial)cluster=initial;render();
-initComparison(clusters,()=>({cluster,pi}));
+const savedView=readView(location.hash,clusters);
+if(savedView){cluster=savedView.cluster;pi=savedView.pi;selected=savedView.selected;view=savedView.view;zoom=savedView.zoom;}render();
+const comparison=initComparison(clusters,()=>({cluster,pi}));
+if(savedView)comparison.restore(savedView.comparison);
+initSharing(()=>({cluster,pi,selected,view,zoom,comparison:comparison.getState()}),clusters);
+window.addEventListener('hashchange',()=>{const saved=readView(location.hash,clusters);if(!saved)return;cluster=saved.cluster;pi=saved.pi;selected=saved.selected;view=saved.view;zoom=saved.zoom;detail=null;render();comparison.restore(saved.comparison);});
 initDiscovery(clusters,(c,index)=>{selectCluster(c);pi=index;view='inside';render();document.querySelector('.clusterhead').scrollIntoView({block:'start'});document.querySelector('.clusterhead').focus({preventScroll:true});},(c,index)=>{selectCluster(c);pi=index;render();document.querySelector('#compareBtn').click();});
 
 

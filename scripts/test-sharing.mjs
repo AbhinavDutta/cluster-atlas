@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {clusters} from '../dist/data.js';
+import {readView,viewLink} from '../dist/sharing.js';
+const state={cluster:clusters.find(c=>c.id==='perlmutter'),pi:1,selected:42,view:'inside',zoom:1.2,comparison:{open:true,sides:[{id:'perlmutter',part:1},{id:'deltaai',part:0}]}};
+const link=viewLink(state,'https://example.org/');
+assert.deepEqual(readView(new URL(link).hash,clusters),state);
+const invalid=readView('#perlmutter?part=-1&node=999999999&view=bad&zoom=NaN',clusters);
+assert.equal(invalid.pi,0);assert.equal(invalid.selected,0);assert.equal(invalid.view,'network');assert.equal(invalid.zoom,1);
+assert.equal(readView('#not-a-cluster',clusters),null);
+assert.equal(readView('#deltaai',clusters).cluster.id,'deltaai');
+console.log('PASS exact-view roundtrip, legacy links and invalid-state fallback.');
