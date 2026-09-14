@@ -1,3 +1,4 @@
+import {initComparison} from './compare.js';
 import {initWorldMap} from './world-map.js';
 import {clusters,catalogDate,matchCluster} from './data.js';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -106,4 +107,5 @@ $('#searchForm').onsubmit=e=>{e.preventDefault();let query=$('#search').value.tr
 $('#sourcesBtn').onclick=sources;$('#sourceLink').onclick=sources;$('#closeDialog').onclick=()=>$('#sourceDialog').close();$('#sourceDialog').onclick=e=>{if(e.target===$('#sourceDialog')){let r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close()}};
 const worldMap=initWorldMap(clusters,c=>{selectCluster(c);const heading=document.querySelector('.clusterhead');heading.scrollIntoView({block:'start'});heading.focus({preventScroll:true})});
 const initial=clusters.find(c=>c.id===location.hash.slice(1));if(initial)cluster=initial;render();
+initComparison(clusters,()=>({cluster,pi}));
 
