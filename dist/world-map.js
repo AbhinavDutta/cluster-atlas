@@ -9,7 +9,7 @@ export function initWorldMap(clusters, onSelect) {
   let zoom=1, activeId=null;
   root.innerHTML=`<details class="world-discovery" open><summary><span><span class="eyebrow">GLOBAL ATLAS</span><strong>Explore the world of compute</strong></span><span class="map-summary">${mapped.length} individual pins · ${unknown.length} not pinned <span class="map-chevron">⌄</span></span></summary>
     <div class="world-layout"><div class="world-surface"><div class="world-toolbar"><span>Select a pin to explore</span><div><button type="button" data-map-zoom="-1" aria-label="Zoom world map out">−</button><button type="button" data-map-zoom="1" aria-label="Zoom world map in">+</button><button type="button" data-map-reset>Reset map</button></div></div>
-    <div class="world-scroll" tabindex="0" role="region" aria-label="World map. Scroll or pinch to zoom; drag to pan."><div class="world-canvas"><img src="./world-land.svg" alt="" draggable="false"><div class="world-pins"></div></div></div>
+    <div class="world-scroll" tabindex="0" role="region" aria-label="World map. Scroll or pinch to zoom; drag to pan."><div class="world-canvas"><img class="world-land-light" src="./world-land.svg" alt="" draggable="false"><img class="world-land-dark" src="./world-land-dark.svg" alt="" draggable="false"><div class="world-pins"></div></div></div>
     <div class="world-credit">One pin per cluster · Thin lines connect offset pins to their city<br>Land: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noopener noreferrer">Natural Earth</a> · Scroll or pinch to zoom · Drag to pan<br>Only sourced city locations are pinned; unverified locations stay in the list.</div></div>
     <aside class="world-panel" aria-label="Clusters at selected map location"><div class="world-results" aria-live="polite"></div>${unknown.length?`<div class="world-unknown"><strong>Location not mapped</strong><p>City not verified in this catalog, or the system spans multiple sites.</p><div class="world-unmapped-list" tabindex="0" role="region" aria-label="Unmapped clusters; scroll for more">${unknown.map(c=>`<button title="${escape(c.name)}" data-map-cluster="${c.id}">${escape(c.name)} <span>Explore ↗</span></button>`).join('')}</div></div>`:''}</aside></div></details>`;
   const canvas=root.querySelector('.world-canvas'), pins=root.querySelector('.world-pins'), results=root.querySelector('.world-results'), scroller=root.querySelector('.world-scroll');
@@ -20,7 +20,7 @@ export function initWorldMap(clusters, onSelect) {
   function draw() {
     const width=Math.max(320,scroller.clientWidth)*zoom, height=Math.max(scroller.clientHeight,width*.45), offset=(height-width*.45)/2;
     canvas.style.width=width+'px';canvas.style.height=height+'px';
-    const land=canvas.querySelector('img');land.style.height=width*.45+'px';land.style.top=offset+'px';
+    canvas.querySelectorAll('img').forEach(land=>{land.style.height=width*.45+'px';land.style.top=offset+'px';});
     const placed=[];
     // Give every system its own non-overlapping target, including co-located systems.
     // Nearest free slot wins; leader lines preserve the actual geographic anchor.

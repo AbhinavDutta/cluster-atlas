@@ -13,3 +13,17 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:15px;-webkit-font-smooth
 @media(max-width:650px){header{padding:0 14px;gap:10px}.headerlabel{display:none}.brand{font-size:15px}.theme-toggle{padding:7px 10px}.shell{display:block}main{padding:14px}.clusterhead h1{font-size:32px}.tabs{max-width:100%}.tabs button{font-size:11px;padding:9px 8px}.workbar{flex-wrap:wrap}.stats{padding:16px 4px}.stat{padding:8px 12px}.world-discovery summary,.discovery summary,.comparison summary{padding:16px}.world-discovery summary strong,.discovery summary strong,.comparison summary strong{font-size:19px}}
 
 .workspace{background:transparent;border:0;border-radius:0}.explorer,.inspector{border:1px solid var(--line);overflow:hidden}.inspector{overflow:auto}.spec{border-color:var(--line)}.specicon.green,.specicon.purple{background:var(--soft)}.context strong{color:var(--ink)}.workbar{height:auto;min-height:60px}.tabs{height:auto}.stat:first-child,.stat:nth-child(3){padding-left:20px}.nodecontrols>span,.nodecard strong,.gridtoolbar span,code{font-family:var(--mono)}
+
+/* Purpose-designed dark cartography; retain coastline contrast without inversion. */
+.world-canvas>.world-land-dark{display:none}
+[data-theme="dark"] .world-canvas>.world-land-light{display:none}
+[data-theme="dark"] .world-canvas>.world-land-dark{display:block;filter:none;opacity:1}
+[data-theme="dark"] .world-scroll{background:#151d22}
+[data-theme="dark"] .world-leaders line{stroke:#a0b8ae;opacity:.65;stroke-width:1}
+[data-theme="dark"] .world-leaders circle{fill:#b5dcc6}
+[data-theme="dark"] .world-pin span{background:#79d5a8;border-color:#182d25;box-shadow:0 1px 4px #0008}
+[data-theme="dark"] .world-pin.selected span{background:#f4d28a;border-color:#3e3520;box-shadow:0 0 0 4px #f4d28a30}
+[data-theme="dark"] .world-pin span:after{background:#b5dcc6}
+[data-theme="dark"] .world-pin:hover{background:#79d5a81c}
+[data-theme="dark"] .world-pin-label{background:#26342f;border-color:#617b6d;color:#f0f6f2}
+[data-theme="dark"] .world-choice button[aria-current]{border-color:#bda36c;background:#302d24}
