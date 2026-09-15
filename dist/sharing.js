@@ -44,7 +44,7 @@ export function makeExport(state,clusters){
 }
 export function initSharing(getState,clusters){
  const host=document.createElement('div');host.className='share-tools';host.innerHTML='<label>Share or export <select aria-label="Share or export scope"><option value="view">Cluster view</option><option value="comparison">Comparison</option></select></label><button data-share="copy">Copy view link</button><button data-share="svg">Export SVG</button><button data-share="png">Export PNG</button><span role="status" aria-live="polite"></span><input class="share-fallback" aria-label="Link to copy" readonly hidden>';
- document.querySelector('.clusterhead').after(host);
+ document.querySelector('.context').after(host);
  const status=host.querySelector('[role=status]');
  host.addEventListener('click',async e=>{const button=e.target.closest('[data-share]');if(!button)return;const state=getState();state.comparison={...state.comparison,open:host.querySelector('select').value==='comparison'};host.querySelector('input').hidden=true;button.disabled=true;
  try{if(button.dataset.share==='copy'){const link=viewLink(state,location.href);try{await navigator.clipboard.writeText(link);status.textContent='Link copied.';}catch{const input=host.querySelector('input');input.hidden=false;input.value=link;input.focus();input.select();status.textContent='Copy the selected link.';}return;}

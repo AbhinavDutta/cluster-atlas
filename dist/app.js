@@ -6,7 +6,7 @@ import {clusters,catalogDate,matchCluster} from './data.js';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const fmt=n=>n==null?'Not verified':n.toLocaleString('en-US');
 const esc=s=>String(s??'Not verified').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let cluster=clusters[0],pi=0,view='network',selected=0,zoom=1,detail=null,raf=0,resizeObserver;
+let cluster=clusters.find(c=>c.id==='frontier')||clusters[0],pi=0,view='network',selected=0,zoom=1,detail=null,raf=0,resizeObserver;
 const part=()=>cluster.parts[pi], total=()=>cluster.parts.some(p=>p.count==null)?null:cluster.parts.reduce((s,p)=>s+p.count,0);
 function list(){ $('#clusterList').innerHTML=clusters.filter(c=>c.rank>=1&&c.rank<=10).sort((a,b)=>a.rank-b.rank).map(c=>'<button class="clusteritem '+(c===cluster?'active':'')+'" data-cluster="'+c.id+'" aria-pressed="'+(c===cluster)+'"><span class="clustericon">▦</span><span><strong>'+c.name+'</strong><small>'+c.country+'</small></span><span class="listrank">'+(c.rank?'#'+c.rank:'')+'</span></button>').join(''); }
 function selectCluster(c){if(document.body.dataset.clusterId&&document.body.dataset.clusterId!==c.id){location.assign('/clusters/'+c.id);return;}cluster=c;pi=0;selected=0;view='network';zoom=1;detail=null;render();history.replaceState(null,'',location.pathname+'#'+c.id)}

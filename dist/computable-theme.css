@@ -49,3 +49,8 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:15px;-webkit-font-smooth
 }
 
 .cluster-reference{margin-top:32px;padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:16px}.cluster-reference h2{font-size:24px}.cluster-reference h3{font-size:18px}.cluster-reference p,.cluster-reference li{font-size:14px;line-height:1.7}.cluster-reference dl>div{display:grid;grid-template-columns:180px minmax(0,1fr);gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.cluster-reference dd{margin:0;overflow-wrap:anywhere}.cluster-reference dt{color:var(--muted)}.cluster-directory{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;padding:20px;line-height:1.6}@media(max-width:650px){.cluster-reference{padding:16px}.cluster-reference dl>div{grid-template-columns:1fr;gap:5px}}
+
+/* Keep the selected architecture at the start of the page. */
+main{align-self:start;margin:0 auto}.clusterhead{margin-bottom:16px}.workspace+.context{margin-bottom:16px}
+@media(min-width:651px) and (max-width:950px){.sidebar{padding:14px 20px}.sidebar>.eyebrow,.sidebarfoot{display:none}.searchbox{margin-top:0}.filters{margin:8px 0}#clusterList{display:flex;overflow:auto}.clusteritem{min-width:150px}.clusteritem .listrank{display:none}}
+.sidebar{min-width:0}
