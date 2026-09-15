@@ -9,7 +9,7 @@ export function readView(hash,clusters){
 export function viewLink(state,base){
  const u=new URL(base),q=new URLSearchParams({part:state.pi,view:state.view,node:state.selected,zoom:state.zoom});
  if(state.comparison?.open){q.set('compare','1');state.comparison.sides.forEach((s,i)=>{q.set('c'+i,s.id);q.set('p'+i,s.part);});}
- u.hash=state.cluster.id+'?'+q;return u.href;
+ u.pathname='/clusters/'+state.cluster.id;u.search='';u.hash=state.cluster.id+'?'+q;return u.href;
 }
 function diagramSnapshot(){
  const original=document.querySelector('#visual svg');if(!original)return '';

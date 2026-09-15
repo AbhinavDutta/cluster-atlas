@@ -47,3 +47,5 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:15px;-webkit-font-smooth
  .compare-node{padding:10px}.compare-node button{min-height:44px}.compare-node-bottom{flex-wrap:wrap}
  .compare-table td>a{min-height:44px;display:flex;align-items:center}.compare-detail{font-size:12px}
 }
+
+.cluster-reference{margin-top:32px;padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:16px}.cluster-reference h2{font-size:24px}.cluster-reference h3{font-size:18px}.cluster-reference p,.cluster-reference li{font-size:14px;line-height:1.7}.cluster-reference dl>div{display:grid;grid-template-columns:180px minmax(0,1fr);gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.cluster-reference dd{margin:0;overflow-wrap:anywhere}.cluster-reference dt{color:var(--muted)}.cluster-directory{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;padding:20px;line-height:1.6}@media(max-width:650px){.cluster-reference{padding:16px}.cluster-reference dl>div{grid-template-columns:1fr;gap:5px}}

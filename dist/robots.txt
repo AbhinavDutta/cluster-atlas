@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://cluster-atlas-5rp.pages.dev/sitemap.xml

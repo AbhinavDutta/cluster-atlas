@@ -273,3 +273,7 @@ Suggestions for making HPC architecture easier to understand are especially welc
 A license has not yet been specified for this repository.
 
 If you plan to reuse or redistribute the code or dataset, please check the repository for an updated license first.
+
+## Generated cluster pages
+
+After changes to catalog data, page layout, or asset versions, run `node scripts/generate-cluster-pages.mjs` and commit the generated `dist/clusters/` pages, sitemap, and robots.txt. Cloudflare publishes the checked-in `dist` directory. These pages provide static specifications and sources plus the interactive explorer. Existing hash links remain supported.
