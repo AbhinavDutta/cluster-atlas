@@ -27,3 +27,23 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:15px;-webkit-font-smooth
 [data-theme="dark"] .world-pin:hover{background:#79d5a81c}
 [data-theme="dark"] .world-pin-label{background:#26342f;border-color:#617b6d;color:#f0f6f2}
 [data-theme="dark"] .world-choice button[aria-current]{border-color:#bda36c;background:#302d24}
+
+.compare-side-label{display:none}.compare-inline-detail{font-size:13px;line-height:1.6;padding:12px;background:var(--selected);border-radius:8px;text-align:left;overflow-wrap:anywhere}
+@media(max-width:650px){
+ .compare-scroll{max-height:none;overflow:visible;margin-top:12px;border:0}
+ .compare-table{display:block;width:100%;min-width:0;table-layout:auto}
+ .compare-table thead,.compare-table tbody{display:block;width:100%;position:static}
+ .compare-table thead tr{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:0 14px 16px}
+ .compare-table thead th:first-child{display:none}
+ .compare-table thead th{display:block;width:100%;border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:none}
+ .compare-table select{width:100%;max-width:100%;min-height:44px}
+ .compare-table tbody tr{display:block;border:1px solid var(--line);border-radius:12px;margin:0 14px 14px;overflow:hidden;background:var(--surface)}
+ .compare-table tbody th,.compare-table tbody td{display:block;width:100%!important;border:0;padding:12px 14px;min-width:0}
+ .compare-table tbody th{background:var(--soft);font-size:13px;font-weight:600;color:var(--ink)}
+ .compare-table tbody td+td{border-top:1px solid var(--line)}
+ .compare-side-label{display:block;font:500 11px var(--mono);color:var(--teal);margin-bottom:8px;overflow-wrap:anywhere}
+ .compare-table .compare-section{border:0;margin-top:24px;border-radius:0;background:none}
+ .compare-table .compare-section th{background:none;padding:0 2px;font-size:14px}
+ .compare-node{padding:10px}.compare-node button{min-height:44px}.compare-node-bottom{flex-wrap:wrap}
+ .compare-table td>a{min-height:44px;display:flex;align-items:center}.compare-detail{font-size:12px}
+}
