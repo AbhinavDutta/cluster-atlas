@@ -16,7 +16,7 @@ function diagramSnapshot(){
  const copy=original.cloneNode(true),src=[original,...original.querySelectorAll('*')],dst=[copy,...copy.querySelectorAll('*')];
  src.forEach((el,i)=>{const style=getComputedStyle(el);for(const key of ['fill','stroke','stroke-width','stroke-opacity','fill-opacity','stroke-dasharray','font-size','font-family','font-weight','text-anchor','opacity'])dst[i].style.setProperty(key,style.getPropertyValue(key));dst[i].removeAttribute('tabindex');dst[i].removeAttribute('role');});
  copy.setAttribute('x','30');copy.setAttribute('y','100');copy.setAttribute('width','1040');copy.setAttribute('height','490');
- return new XMLSerializer().serializeToString(copy);
+ return '<rect x="30" y="100" width="1040" height="490" fill="'+esc(getComputedStyle(document.querySelector('#visual')).backgroundColor)+'"/>'+new XMLSerializer().serializeToString(copy);
 }
 export function makeExport(state,clusters){
  const compare=state.comparison?.open;
@@ -43,8 +43,11 @@ export function makeExport(state,clusters){
  return `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${y+25}" viewBox="0 0 1100 ${y+25}"><rect width="100%" height="100%" fill="white"/><g font-family="Arial, sans-serif">${body}</g></svg>`;
 }
 export function initSharing(getState,clusters){
- const host=document.createElement('div');host.className='share-tools';host.innerHTML='<label>Share or export <select aria-label="Share or export scope"><option value="view">Cluster view</option><option value="comparison">Comparison</option></select></label><button data-share="copy">Copy view link</button><button data-share="svg">Export SVG</button><button data-share="png">Export PNG</button><span role="status" aria-live="polite"></span><input class="share-fallback" aria-label="Link to copy" readonly hidden>';
- document.querySelector('.context').after(host);
+ const host=document.createElement('div');host.className='share-tools';host.innerHTML='<label>Share or export <select aria-label="Share or export scope"><option value="view">Cluster view</option><option value="comparison">Comparison</option></select></label><button data-share="copy">Copy link</button><button data-share="svg">Export SVG</button><button data-share="png">Export PNG</button><span role="status" aria-live="polite"></span><input class="share-fallback" aria-label="Link to copy" readonly hidden>';
+ document.querySelector('.explorer').append(host);
+ const comparisonTools=document.createElement('div');comparisonTools.className='comparison-share';comparisonTools.innerHTML='<button data-local-share="copy">Copy comparison link</button><button data-local-share="svg">Export SVG</button><button data-local-share="png">Export PNG</button><span role="status" aria-live="polite"></span>';document.querySelector('#comparison details').append(comparisonTools);
+ comparisonTools.addEventListener('click',e=>{const b=e.target.closest('[data-local-share]');if(!b)return;host.querySelector('select').value='comparison';host.querySelector('[data-share='+b.dataset.localShare+']').click();});
+ new MutationObserver(()=>{comparisonTools.querySelector('[role=status]').textContent=host.querySelector('[role=status]').textContent;const fallback=host.querySelector('.share-fallback');if(!fallback.hidden)fallback.scrollIntoView({block:'center'});}).observe(host.querySelector('[role=status]'),{childList:true,subtree:true,characterData:true});
  const status=host.querySelector('[role=status]');
  host.addEventListener('click',async e=>{const button=e.target.closest('[data-share]');if(!button)return;const state=getState();state.comparison={...state.comparison,open:host.querySelector('select').value==='comparison'};host.querySelector('input').hidden=true;button.disabled=true;
  try{if(button.dataset.share==='copy'){const link=viewLink(state,location.href);try{await navigator.clipboard.writeText(link);status.textContent='Link copied.';}catch{const input=host.querySelector('input');input.hidden=false;input.value=link;input.focus();input.select();status.textContent='Copy the selected link.';}return;}

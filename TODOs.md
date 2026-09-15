@@ -10,3 +10,4 @@ Feature backlog and completed additions.
 - [x] Add shareable views for specific clusters and node configurations, plus sourced diagram exports for lectures, presentations, and technical discussions.
 
 - [ ] Expand verified research-access routes beyond the initial seven systems; keep eligibility and application links current.
+- [x] Add social-preview metadata, a 1200×630 preview, and the supplied logo as the site brand and favicon.

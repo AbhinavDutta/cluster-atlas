@@ -54,3 +54,5 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:15px;-webkit-font-smooth
 main{align-self:start;margin:0 auto}.clusterhead{margin-bottom:16px}.workspace+.context{margin-bottom:16px}
 @media(min-width:651px) and (max-width:950px){.sidebar{padding:14px 20px}.sidebar>.eyebrow,.sidebarfoot{display:none}.searchbox{margin-top:0}.filters{margin:8px 0}#clusterList{display:flex;overflow:auto}.clusteritem{min-width:150px}.clusteritem .listrank{display:none}}
 .sidebar{min-width:0}
+
+.brandmark{object-fit:contain;background:transparent!important;border-radius:0!important}.explorer>.share-tools{margin:0;padding:12px;border-top:1px solid var(--line);gap:8px}.comparison-share{display:flex;flex-wrap:wrap;gap:8px;padding:16px;border-top:1px solid var(--line)}.comparison-share [role=status]{font-size:12px;color:var(--muted);align-self:center}
