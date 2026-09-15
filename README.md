@@ -277,3 +277,5 @@ If you plan to reuse or redistribute the code or dataset, please check the repos
 ## Generated cluster pages
 
 After changes to catalog data, page layout, or asset versions, run `node scripts/generate-cluster-pages.mjs` and commit the generated `dist/clusters/` pages, sitemap, and robots.txt. Cloudflare publishes the checked-in `dist` directory. These pages provide static specifications and sources plus the interactive explorer. Existing hash links remain supported.
+
+Accelerator discovery uses canonical model identities in dist/accelerators.js. Original GPU labels, memory and form factor remain metadata; mixed profiles expose each explicitly named model. Architecture-only labels are excluded from model filtering. When adding hardware, extend the recognized model tokens and run scripts/test-discovery.mjs. Do not infer a chip model from its architecture name.

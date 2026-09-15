@@ -17,3 +17,20 @@ assert.equal(matchingParts(split,{cpu:'x86-64',memory:'80'}).length,0);
 assert.equal(Object.keys(researchAccess).length,7);
 for(const id of Object.keys(researchAccess))assert.ok(clusters.some(c=>c.id===id));
 console.log('PASS discovery filtering: same-node requirements, exact memory, unknowns, shared memory, access routes.');
+
+// Canonical GPU taxonomy: variants match, architectures do not imply a model.
+const {acceleratorModels,acceleratorDevices}=await import('../dist/accelerators.js');
+for(const label of ['NVIDIA H100','NVIDIA H100 SXM5 80GB','NVIDIA H100 80GB','NVIDIA H100 64GB'])assert.deepEqual(acceleratorModels({gpu:label}),['NVIDIA H100']);
+for(const [model,count] of [['NVIDIA H100',14],['AMD Instinct MI250X',5],['NVIDIA GH200',10]])assert.equal(clusters.filter(c=>matchingParts(c,{model}).length).length,count);
+assert.deepEqual(acceleratorModels({gpu:'NVIDIA Hopper'}),[]);
+assert.deepEqual(acceleratorModels({gpu:'Unverified accelerator'}),[]);
+assert.deepEqual(acceleratorModels({gpu:null,gpus:0}),['CPU only']);
+assert.deepEqual(acceleratorModels({gpu:'8 × MI100 + 1 × MI210',mixed:true}),['AMD Instinct MI100','AMD Instinct MI210']);
+const delta=clusters.find(c=>c.id==='delta');
+assert.ok(matchingParts(delta,{model:'AMD Instinct MI100'}).length);
+assert.ok(matchingParts(delta,{model:'AMD Instinct MI210'}).length);
+assert.equal(matchingParts(delta,{model:'AMD Instinct MI210',memory:'32'}).length,0);
+assert.deepEqual(matchingParts(perlmutter,{model:'NVIDIA A100',memory:'80'}).map(x=>x.index),[1]);
+const variant=acceleratorDevices({gpu:'NVIDIA H100 SXM5 80GB',vram:'80 GB per GPU'})[0];
+assert.equal(variant.formFactor,'SXM5');assert.equal(variant.specification,'NVIDIA H100 SXM5 80GB');assert.equal(variant.memory,'80 GB per GPU');
+console.log('PASS canonical aliases, catalog counts, mixed models, variant metadata, and conservative combined filters.');
