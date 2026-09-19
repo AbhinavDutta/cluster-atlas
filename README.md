@@ -129,7 +129,9 @@ cluster-atlas/
 │   ├── import-top50.py
 │   ├── audit-coverage.mjs
 │   ├── generate-cluster-pages.mjs
+│   ├── generate-icons.mjs
 │   ├── test-discovery.mjs
+│   ├── test-icons.mjs
 │   ├── test-sharing.mjs
 │   └── test-social.mjs
 │
@@ -202,6 +204,20 @@ Vendor platform specifications cited by node type are stored in:
 ```text
 dist/platforms.js       e.g. NVSwitch count and per-GPU link bandwidth for DGX H100/H200/A100
 ```
+
+Site icons are generated from `dist/logo.png` rather than committed by hand:
+
+```bash
+node scripts/generate-icons.mjs   # writes favicon.ico, favicon-16/32.png,
+                                  # apple-touch-icon.png, icon-192/512.png
+node scripts/test-icons.mjs       # verifies sizes, colour type and ICO payloads
+```
+
+Run the generator after replacing `logo.png`. Downscaling averages in
+premultiplied alpha, so the logo's transparent background does not bleed dark
+fringes into the mark. The favicon is deliberately multi-size: browsers request
+`/favicon.ico` directly when a page has no icon link, and bookmark managers, RSS
+readers and search engines do so regardless.
 
 The TOP500 import utility is located at:
 

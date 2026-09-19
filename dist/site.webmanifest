@@ -1,0 +1,24 @@
+{
+  "name": "Cluster Atlas",
+  "short_name": "Cluster Atlas",
+  "description": "An interactive field guide to supercomputing architectures.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafafb",
+  "theme_color": "#1c7056",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
