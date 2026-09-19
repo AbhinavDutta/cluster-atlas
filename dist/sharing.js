@@ -4,7 +4,7 @@ export function readView(hash,clusters){
  const q=new URLSearchParams(query),integer=(v,max)=>{const n=Number(v);return Number.isInteger(n)&&n>=0&&n<max?n:0;};
  const part=integer(q.get('part'),c.parts.length),node=integer(q.get('node'),c.parts[part].count||1);
  const z=Number(q.get('zoom')||1);
- return {cluster:c,pi:part,selected:node,view:['network','nodes','inside'].includes(q.get('view'))?q.get('view'):'network',zoom:Number.isFinite(z)?Math.max(.6,Math.min(2.6,z)):1,comparison:{open:q.get('compare')==='1',sides:[0,1].map(i=>({id:q.get('c'+i),part:Number(q.get('p'+i)||0)}))}};
+ return {cluster:c,pi:part,selected:node,view:['network','inside','specs'].includes(q.get('view'))?q.get('view'):'network',zoom:Number.isFinite(z)?Math.max(.6,Math.min(2.6,z)):1,comparison:{open:q.get('compare')==='1',sides:[0,1].map(i=>({id:q.get('c'+i),part:Number(q.get('p'+i)||0)}))}};
 }
 export function viewLink(state,base){
  const u=new URL(base),q=new URLSearchParams({part:state.pi,view:state.view,node:state.selected,zoom:state.zoom});
@@ -29,12 +29,15 @@ export function makeExport(state,clusters){
  const entries=compare?state.comparison.sides.map(s=>({c:clusters.find(c=>c.id===s.id),pi:s.part})): [{c:state.cluster,pi:state.pi}];
  let y=35,body='';const text=(value,size=15,color='#284657')=>{const words=String(value??'Not verified').split(/\s+/);let line='';for(const word of words){for(let w of word.match(/.{1,110}/g)||['']){if((line+' '+w).length>110){body+=`<text x="30" y="${y}" font-size="${size}" fill="${color}">${esc(line)}</text>`;y+=size+8;line='';}line+=(line?' ':'')+w;}}body+=`<text x="30" y="${y}" font-size="${size}" fill="${color}">${esc(line)}</text>`;y+=size+10;};
  text(compare?'Cluster Atlas · Architecture comparison':'Cluster Atlas · '+state.cluster.name,24);
- text(compare?'Selected node configurations':`${state.view==='nodes'?'Node inventory summary':state.view==='inside'?'Inside a node':'Network'} · ${state.cluster.parts[state.pi].name} · illustrative node ${state.selected+1}`);
- if(!state.summaryOnly&&!compare&&state.view!=='nodes'){const svg=diagramSnapshot();if(svg){body+=svg;y=620;}}
+ text(compare?'Selected node configurations':`${state.view==='inside'?'Inside a node':'Network'} · ${state.cluster.parts[state.pi].name} · illustrative node ${state.selected+1}`);
+ if(!state.summaryOnly&&!compare){const svg=diagramSnapshot();if(svg){body+=svg;y=620;}}
  for(const {c,pi} of entries){const p=c.parts[pi];text(c.name+' · '+p.name,20);text(c.site+' · '+c.country);text('Scope: '+(c.profileScope||'Documented compute inventory'));
+  if(c.benchmark){text('Published benchmark (TOP500 · June 2026)',16);text('Rank #'+c.benchmark.rank+' · Rmax '+(c.benchmark.rmax??'not published')+' PFlop/s · Rpeak '+(c.benchmark.rpeak??'not published')+' PFlop/s · cores '+(c.benchmark.cores??'not published')+' · power '+(c.benchmark.powerKw??'not published')+' kW'+(c.benchmark.efficiencyGFlopsPerWatt?' · '+c.benchmark.efficiencyGFlopsPerWatt.toFixed(2)+' GFlop/s per watt':''));}
   const cards=[['CPU',(p.cpus??'?')+' × '+p.cpu],['ACCELERATOR',p.gpus===0?'None':(p.gpus??'?')+' × '+(p.gpu||'Not verified')],['MEMORY',p.ram],['DEVICE MEMORY',p.vram||'Not applicable']];
   for(const [label,value] of cards){body+=`<rect x="30" y="${y-17}" width="1040" height="32" rx="4" fill="#edf5f6"/>`;text(label+': '+value);y+=8;}
-  text('Nodes of this type: '+(p.count??'Not verified'));text('Cluster interconnect: '+c.network+' · Topology: '+c.topology);text('Within node: '+p.link+' · Host link: '+p.hostLink);text('Storage: '+p.disk);
+  text('Nodes of this type: '+(p.count??'Not verified'));text('Cluster interconnect: '+c.network+' · Topology: '+c.topology);text('Within node: '+p.link+' · Host link: '+p.hostLink);text('On-node fabric: '+(p.onNodeFabric||'Not published'));text('Network interfaces: '+(p.nic??'Not published')+(p.nicModel?' × '+p.nicModel:'')+(p.nicSpeed?' · '+p.nicSpeed:'')+(p.nicTopology?' · '+p.nicTopology:''));
+  if(p.aggregateScaleOut||p.gpuDirect!=null)text('Scale-out: '+(p.aggregateScaleOut||'aggregate not published')+(p.gpuDirect?' · GPUDirect RDMA':''));text('Storage: '+p.disk);
+  text('Documented fields: '+c.completeness.documented+' / '+c.completeness.total+' ('+c.completeness.percent+'%) · '+[...c.completeness.missing,...Object.entries(c.completeness.nodeMissing).flatMap(([n,l])=>l.map(m=>n+': '+m))].join(', '),13);
   text('Notes: '+c.notes,13);text('Checked: '+(c.checked||'13 September 2026')+' · Rankings: June 2026 TOP500',13);
   for(const s of c.sources){text(s.title,12);text(s.url,12);}y+=22;
  }

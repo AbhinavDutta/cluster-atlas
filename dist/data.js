@@ -1,6 +1,7 @@
 import {top50} from './top50.js';
 import {extraClusters,enrichRanked} from './catalog-expansion.js';
-const source=(title,url)=>({title,url});
+import {enrichCluster} from './enrich.js';
+import {source} from './sources.js';
 const TOP=source("TOP500 · June 2026","https://www.top500.org/lists/top500/2026/06/");
 const P=(name,count,cpu,cpus,gpu,gpus,ram,vram,link="Not verified",extra={})=>({name,count,cpu,cpus,gpu,gpus,ram,vram,link,disk:"Not verified",hostLink:"Not verified",...extra});
 const S=(id,name,site,country,rank,rmax,network,topology,parts,sources,notes="")=>({id,name,site,country,rank,rmax,network,topology,parts,sources:[...(rank?[TOP]:[]),...sources],notes});
@@ -29,8 +30,25 @@ S("hpc7","HPC7","Eni · Green Data Center","Italy",6,571.5,"HPE Slingshot 11","N
  P("MI300A compute",null,"AMD Zen 4 · 24 cores per APU",4,"AMD MI300A",4,"Not verified","Unified HBM3; capacity not verified","Infinity Fabric",{apu:true,hostLink:"On-package Infinity Fabric"})
 ],[source("Eni · HPC7 announcement","https://www.eni.com/en-IT/media/press-release/2026/06/eni-ranks-as-world-s-leading-company-top500-global-ranking.html")],"Eni reports over 3,400 nodes. Exact installed count is not verified here, so a representative node is shown."),
 S("eagle","Eagle","Microsoft Azure","United States",7,561.2,"NVIDIA InfiniBand NDR","Not verified",[
- P("ND H100 v5",null,"Intel Xeon Platinum 8480C",null,"NVIDIA H100",8,"1,900 GiB (VM specification)","80 GB per GPU","NVLink / NVSwitch",{hostLink:"PCIe 5.0",disk:"1,024 GiB temporary disk (VM specification)"})
-],[source("Microsoft · ND H100 v5","https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ndh100v5-series")],"The node model uses public ND H100 v5 VM specifications. Exact benchmark VM count and physical host socket allocation are not verified."),
+ P("ND H100 v5",null,"Intel Xeon Platinum 8480C",null,"NVIDIA H100",8,"1,900 GiB (VM specification)","80 GB per GPU","NVLink 4 · all GPU pairs through NVSwitch",{
+  hostLink:"PCIe 5.0",
+  systemModel:"Microsoft ND H100 v5 (Azure Standard_ND96isr_H100_v5)",
+  physicalCores:96,
+  cpuNote:"Microsoft states the instance has 96 physical 4th Gen Intel Xeon Scalable cores, while the VM size reports 96 vCPUs. The host socket layout behind that allocation is not published.",
+  disk:"1,024 GiB temporary disk (VM specification)",
+  nvme:"Up to 8 × 28 TiB NVMe data disks (VM specification)",
+  remoteDisks:32,
+  diskIops:40800,
+  diskThroughputMBps:612,
+  nic:8,
+  nicModel:"NVIDIA Quantum-2 CX7 InfiniBand",
+  nicSpeed:"400 Gb/s per adapter",
+  nicTopology:"One dedicated, topology-agnostic adapter per GPU",
+  aggregateScaleOut:"3.2 Tb/s per VM",
+  gpuDirect:true,
+  onNodeFabric:"NVLink 4 within the VM"
+})
+],[source("Microsoft · ND H100 v5","https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ndh100v5-series")],"The node model uses public ND H100 v5 VM specifications. Exact benchmark VM count, the physical host socket allocation behind the 96 reported vCPUs, and the scale-set topology are not verified."),
 S("hpc6","HPC6","Eni · Green Data Center","Italy",8,477.9,"HPE Slingshot","Not verified",[
  P("MI250X compute",3472,"AMD EPYC · 64 cores",1,"AMD Instinct MI250X",4,"Not verified","Not verified","Not verified")
 ],[source("Eni · HPC6 technology","https://www.eni.com/visual-design/infographics/hpc6-longform/en/technology/")],"Installed configuration. Detailed memory and on-node wiring are not verified in this profile."),
@@ -63,6 +81,9 @@ for(const record of top50){
  else clusters.push(enrichRanked(record));
 }
 clusters.push(...extraClusters);
+// Attach published ranking fields and documented platform specifications, then
+// record which public fields each profile is still missing.
+clusters.forEach(enrichCluster);
 export const catalogDate="13 September 2026";
 export function normalize(s){return s.toLowerCase().replace(/[^a-z0-9]/g,"")}
 export function distance(a,b){let v=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let w=[i];for(let j=1;j<=b.length;j++)w[j]=Math.min(w[j-1]+1,v[j]+1,v[j-1]+(a[i-1]!==b[j-1]));v=w}return v[b.length]}

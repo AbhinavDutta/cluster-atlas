@@ -22,20 +22,39 @@ export function initComparison(clusters,getCurrent){
     const nodeRow=(label,f)=>row(label,ps.map(f));
     tbody.innerHTML=section('Cataloged inventory (see profile scope)')+
       clusterRow('Operator / site',c=>c.site)+clusterRow('Country',c=>c.country)+clusterRow('Profile scope',c=>c.profileScope||'Documented compute inventory')+
+      clusterRow('Manufacturer',c=>c.manufacturer)+clusterRow('Operating system',c=>c.os)+
       clusterRow('Total compute nodes',c=>fmt(sum(c,p=>p.count)))+
       clusterRow('Total physical accelerators',c=>fmt(sum(c,p=>p.gpus===0?0:p.count==null||p.gpus==null?null:p.count*p.gpus)))+
       clusterRow('Documented node types',c=>fmt(c.parts.length))+
+      section('Published benchmark (TOP500 · June 2026)')+
+      clusterRow('HPL rank',c=>c.benchmark?('#'+c.benchmark.rank):'Not ranked')+
+      clusterRow('HPL Rmax (PFlop/s)',c=>c.benchmark?.rmax!=null?c.benchmark.rmax.toLocaleString('en-US'):'Not published')+
+      clusterRow('Theoretical peak Rpeak (PFlop/s)',c=>c.benchmark?.rpeak!=null?c.benchmark.rpeak.toLocaleString('en-US'):'Not published')+
+      clusterRow('Ranked core count',c=>c.benchmark?.cores!=null?c.benchmark.cores.toLocaleString('en-US'):'Not published')+
+      clusterRow('Measured power (kW)',c=>c.benchmark?.powerKw!=null?c.benchmark.powerKw.toLocaleString('en-US'):'Not published')+
+      clusterRow('Energy efficiency (GFlop/s per watt)',c=>c.benchmark?.efficiencyGFlopsPerWatt!=null?c.benchmark.efficiencyGFlopsPerWatt.toFixed(2):'Not published')+
       section('Selected node type')+nodeRow('Nodes of this type',p=>fmt(p.count))+
       `<tr><th scope="row">Inside one node</th>${sides.map((s,i)=>`<td>${diagram(s.c,ps[i],i)}</td>`).join('')}</tr>`+
       section('Per-node hardware')+
+      nodeRow('System / node model',p=>p.systemModel)+
       nodeRow('CPU model',p=>p.cpu)+nodeRow('CPU count / CPU-bearing packages',p=>p.apu?`${p.cpus??'Not verified'} APU packages (CPU integrated)`:fmt(p.cpus))+
+      nodeRow('Cores per socket',p=>p.coresPerSocket)+
       nodeRow('Accelerator model',p=>p.gpus===0?'No accelerator':p.gpu||'Not verified')+nodeRow('Physical accelerators',p=>`${fmt(p.gpus)}${p.apu?' APUs (CPU + GPU)':''}`)+
       nodeRow('Host / unified memory',p=>p.ram)+nodeRow('Accelerator memory (as documented)',p=>p.gpus===0?'Not applicable':p.vram)+
       nodeRow('Storage (as documented)',p=>p.disk)+
       section('Connections')+nodeRow('CPU ↔ accelerator',p=>p.gpus===0?'Not applicable':p.hostLink)+
       nodeRow('Accelerator ↔ accelerator',p=>p.gpus==null?'Not verified':p.gpus>1?p.link:'Not applicable')+
+      nodeRow('On-node fabric',p=>p.onNodeFabric)+
       nodeRow('Network interfaces per node',p=>fmt(p.nic))+
+      nodeRow('Interface model',p=>p.nicModel)+
+      nodeRow('Interface speed',p=>p.nicSpeed)+
+      nodeRow('Interface-to-accelerator topology',p=>p.nicTopology?p.nicTopology+(p.scaleOut?` (${p.scaleOut.perAccelerator?'dedicated per accelerator':'shared node interface'})`:''):'Not published')+
+      nodeRow('Aggregate scale-out per node',p=>p.aggregateScaleOut)+
+      nodeRow('GPUDirect RDMA',p=>p.gpuDirect)+
       clusterRow('Cluster interconnect',c=>c.network)+clusterRow('Cluster network topology',c=>c.topology)+
+      section('Public record coverage')+
+      clusterRow('Documented tracked fields',c=>`${c.completeness.documented} / ${c.completeness.total} (${c.completeness.percent}%)`)+
+      clusterRow('Not published for this system',c=>[...c.completeness.missing,...Object.entries(c.completeness.nodeMissing).flatMap(([n,l])=>l.map(m=>n+': '+m))].join(', ')||'No gaps recorded')+
       section('Notes and sources')+clusterRow('Inventory / architecture caveats',c=>c.notes)+
       `<tr><th scope="row">Sources</th>${sides.map(s=>`<td>${s.c.sources.map(src=>`<a href="${esc(src.url)}" target="_blank" rel="noopener noreferrer">${esc(src.title)} ↗</a>`).join('')}</td>`).join('')}</tr>`;
     tbody.querySelectorAll('tr').forEach(tr=>tr.querySelectorAll('td').forEach((td,i)=>{const label=document.createElement('span');label.className='compare-side-label';label.textContent=(i?'B':'A')+' · '+sides[i].c.name;td.prepend(label);}));

@@ -39,8 +39,14 @@ Browse a catalog of major HPC and AI systems, including machines from the TOP500
 Move between multiple levels of abstraction:
 
 - **Network view** — understand the cluster-level organization
-- **Node inventory** — browse the compute nodes in a system
 - **Node architecture** — inspect CPUs, GPUs, memory, storage, and interconnects
+- **Specifications** — the full documented public record for the cluster and each
+  node type, including facts a diagram cannot draw, with the fields the operator
+  has not published listed explicitly
+
+The node diagram draws each accelerator's own path to the cluster fabric when a
+source documents one, so a node with a dedicated network adapter per accelerator
+is shown as such rather than as a single shared interface.
 
 ### Hardware discovery
 
@@ -69,6 +75,10 @@ Hardware information is linked to public sources such as:
 - supercomputing-center documentation
 - system operator documentation
 - vendor and architecture documentation
+
+The catalog tries to show everything the cited sources state, not only the subset
+a diagram can draw. Each profile reports how many tracked fields are documented and
+lists the ones that are not, so a gap is visible rather than implied.
 
 Unknown or insufficiently documented fields are explicitly marked rather than inferred.
 
@@ -104,6 +114,10 @@ cluster-atlas/
 │   ├── app.js
 │   ├── data.js
 │   ├── top50.js
+│   ├── ranked-extras.js
+│   ├── platforms.js
+│   ├── enrich.js
+│   ├── sources.js
 │   ├── discovery.js
 │   ├── compare.js
 │   ├── locations.js
@@ -113,7 +127,11 @@ cluster-atlas/
 │
 ├── scripts/
 │   ├── import-top50.py
-│   └── test-discovery.mjs
+│   ├── audit-coverage.mjs
+│   ├── generate-cluster-pages.mjs
+│   ├── test-discovery.mjs
+│   ├── test-sharing.mjs
+│   └── test-social.mjs
 │
 └── TODOs.md
 ```
@@ -173,11 +191,57 @@ dist/data.js
 dist/catalog-expansion.js
 ```
 
+Published ranking fields that the generator does not carry in `top50.js` are transcribed in:
+
+```text
+dist/ranked-extras.js   ranked core count, theoretical peak, measured power, OS, manufacturer
+```
+
+Vendor platform specifications cited by node type are stored in:
+
+```text
+dist/platforms.js       e.g. NVSwitch count and per-GPU link bandwidth for DGX H100/H200/A100
+```
+
 The TOP500 import utility is located at:
 
 ```text
 scripts/import-top50.py
 ```
+
+Public documentation is preferred over secondary descriptions whenever possible.
+
+### Adding a cluster without omitting published information
+
+A profile is only considered complete when every fact the cited sources state has
+somewhere to appear. Adding a cluster means:
+
+1. **Collect the primary sources first.** Operator documentation, the vendor
+   platform datasheet, and the ranking entry if the system is ranked.
+2. **Record every field the sources state**, even when a diagram cannot draw it:
+   CPU sockets and cores, accelerator count, host and accelerator memory, local
+   storage, network interface count, model and speed, the link between an
+   accelerator and its interface, remote storage, power and operating system.
+3. **State scale-out honestly.** If each accelerator has its own network adapter,
+   say so (`nicTopology` / `nic` per accelerator); if the node has one shared
+   interface, say that instead. If it is not published, leave it unverified.
+4. **Attach a vendor platform** in `dist/platforms.js` when the node type is a
+   named platform, rather than re-typing its facts per cluster.
+5. **Preserve uncertainty.** Use `Not verified` for anything a source does not
+   state. Never infer a count, socket layout or bandwidth from a system name.
+6. **Run the guardrail:**
+
+   ```bash
+   node scripts/audit-coverage.mjs
+   ```
+
+   It fails when a ranked system is missing its published benchmark fields, a
+   documented platform is missing its specification, or a record has grown a
+   field that the interface cannot display.
+
+The specification sheet in the interface renders a stable list of known fields and
+then appends any remaining keys of the record. A new fact therefore appears
+automatically once its key is classified, and the audit above fails if it is not.
 
 Public documentation is preferred over secondary descriptions whenever possible.
 
