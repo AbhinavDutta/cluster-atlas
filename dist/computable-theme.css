@@ -56,3 +56,16 @@ main{align-self:start;margin:0 auto}.clusterhead{margin-bottom:16px}.workspace+.
 .sidebar{min-width:0}
 
 .brandmark{object-fit:contain;background:transparent!important;border-radius:0!important}.explorer>.share-tools{margin:0;padding:12px;border-top:1px solid var(--line);gap:8px}.comparison-share{display:flex;flex-wrap:wrap;gap:8px;padding:16px;border-top:1px solid var(--line)}.comparison-share [role=status]{font-size:12px;color:var(--muted);align-self:center}
+
+/* Static cluster pages mirror the in-app sheet: known values are listed, and the
+   gaps live in the one ledger list rather than as repeated "Not published" rows. */
+.cluster-reference .ledger-list{margin:6px 0 0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px 20px;font-size:13px}
+.cluster-reference .ledger-list li{display:flex;gap:8px;align-items:baseline}
+.cluster-reference .ledger-list .mark{flex-shrink:0;width:12px}
+.cluster-reference .ledger-list li.present .mark{color:var(--teal)}
+.cluster-reference .ledger-list li.absent{color:var(--muted)}
+.cluster-reference .ledger-list li.absent .mark{color:#b4763f}
+.cluster-reference .ledger-list li.na{color:var(--muted);opacity:.7}
+.cluster-reference .ledger-list li.na .mark{color:var(--line)}
+.cluster-reference dl>div.platformfact dt:after{content:' ▧';font-size:10px;color:var(--teal)}
+.cluster-reference h4{font-size:14px;margin:16px 0 2px}

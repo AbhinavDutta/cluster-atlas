@@ -84,41 +84,84 @@ export function enrichCluster(c) {
   return c;
 }
 
-// Which published facts this profile does not have yet. Derived from the record
-// itself so it stays correct as data is added, and surfaced in the interface so
-// a missing value reads as "we have not published this yet" rather than as an
-// absence of hardware.
+// The specification sheets render exclusively from this registry, so a valued
+// field with no entry would become invisible. These sets let the coverage audit
+// assert that cannot happen.
+export const CLUSTER_FIELD_KEYS = new Set(['manufacturer', 'cores', 'rpeak', 'powerKw', 'efficiency', 'os', 'topology']);
+export const PART_FIELD_KEYS = new Set(['systemModel', 'count', 'cpu', 'cpus', 'coresPerSocket', 'physicalCores',
+  'cpuNote', 'gpu', 'gpus', 'ram', 'vram', 'link', 'onNodeFabric', 'hostLink', 'nic', 'nicModel', 'nicSpeed',
+  'nicTopology', 'aggregateScaleOut', 'gpuDirect', 'managementNic', 'disk', 'nvme', 'remoteDisks',
+  'diskIops', 'diskThroughputMBps', 'formFactor']);
+
+// Which published facts this profile has, and which are missing.
+//
+// Derived from the record itself so it stays correct as data is added. The
+// interface uses this as the single source of truth for gaps: the specification
+// sheets show only fields that have a value, and this list carries the rest.
+//
+// A third state exists besides present and absent. Some fields cannot exist for
+// a given system — benchmark results for a cluster TOP500 never ranked, or
+// accelerator links on a CPU-only node. Those are marked not applicable and are
+// excluded from the total, so a machine is not scored as if it were withholding
+// information it cannot have.
+const isAcceleratorNode = p => p.gpus !== 0;
+const hasAcceleratorFabric = p => p.gpus > 1;
+const isRanked = c => c.rank != null;
+
 const CLUSTER_CHECKS = [
   ['Manufacturer', c => c.manufacturer],
-  ['System model', c => c.parts[0]?.systemModel],
-  ['Ranked core count', c => c.cores],
-  ['Theoretical peak', c => c.rpeak],
-  ['Measured power', c => c.powerKw],
+  ['Ranked core count', c => c.cores, isRanked],
+  ['Theoretical peak', c => c.rpeak, isRanked, 'PFlop/s'],
+  ['Measured power', c => c.powerKw, isRanked, 'kW'],
+  ['Energy efficiency', c => c.efficiency, isRanked, 'GFlop/s per watt'],
   ['Operating system', c => c.os],
   ['Network topology', c => c.topology && c.topology !== 'Not verified' ? c.topology : null]
 ];
 const PART_CHECKS = [
-  ['Node count', p => p.count],
+  ['System / node model', p => p.systemModel],
+  ['Compute nodes of this type', p => p.count],
   ['CPU model', p => p.cpu],
-  ['CPU sockets', p => p.cpus ?? p.physicalCores],
-  ['CPU cores per socket', p => p.coresPerSocket],
-  ['Accelerator model', p => p.gpu],
-  ['Accelerators per node', p => p.gpus != null ? p.gpus : null],
-  ['Host memory', p => p.ram],
-  ['Accelerator memory', p => p.vram],
-  ['Accelerator link', p => p.link],
-  ['CPU–accelerator link', p => p.hostLink],
-  ['Network interfaces', p => p.nic],
+  ['CPU sockets per node', p => p.apu ? p.cpus : p.cpus ?? p.physicalCores, p => !p.apu],
+  ['Cores per socket', p => p.coresPerSocket, p => !p.apu],
+  ['Physical CPU cores', p => p.physicalCores, p => !p.apu],
+  ['CPU note', p => p.cpuNote],
+  ['Accelerator model', p => p.gpu, isAcceleratorNode],
+  ['Physical accelerators per node', p => p.gpus, isAcceleratorNode],
+  ['Host / unified memory', p => p.ram],
+  ['Accelerator memory', p => p.vram, isAcceleratorNode],
+  ['Accelerator ↔ accelerator link', p => p.link, hasAcceleratorFabric],
+  ['On-node fabric', p => p.onNodeFabric, hasAcceleratorFabric],
+  ['CPU ↔ accelerator link', p => p.hostLink, isAcceleratorNode],
+  ['Network interfaces per node', p => p.nic],
   ['Interface model', p => p.nicModel],
   ['Interface speed', p => p.nicSpeed],
-  ['Local storage', p => p.disk]
+  ['Interface-to-accelerator topology', p => p.nicTopology],
+  ['Aggregate scale-out per node', p => p.aggregateScaleOut],
+  ['GPUDirect RDMA', p => p.gpuDirect, isAcceleratorNode],
+  ['Management / storage networking', p => p.managementNic],
+  ['Local storage', p => p.disk],
+  ['NVMe data disks', p => p.nvme],
+  ['Max remote data disks', p => p.remoteDisks],
+  ['Uncached disk IOPS', p => p.diskIops],
+  ['Uncached disk throughput', p => p.diskThroughputMBps, undefined, 'MBps'],
+  ['Form factor', p => p.formFactor]
 ];
 
 function attachCompleteness(c) {
-  const missing = CLUSTER_CHECKS.filter(([, read]) => !isSet(read(c))).map(([label]) => label);
-  const nodeMissing = {};
-  for (const p of c.parts) nodeMissing[p.name] = PART_CHECKS.filter(([, read]) => !isSet(read(p))).map(([label]) => label);
-  const total = CLUSTER_CHECKS.length + c.parts.length * PART_CHECKS.length;
+  // Each entry keeps its value so the specification sheets and the gap list can
+  // never disagree about whether a field is documented.
+  const mark = (label, read, applies, subject, unit) => {
+    const applicable = !applies || applies(subject);
+    return applicable ? {label, unit, applicable: true, present: isSet(read(subject)), value: read(subject)} : {label, unit, applicable: false, present: false, value: null};
+  };
+
+  const clusterFields = CLUSTER_CHECKS.map(([label, read, applies, unit]) => mark(label, read, applies, c, unit));
+  const nodeFields = {};
+  for (const p of c.parts) nodeFields[p.name] = PART_CHECKS.map(([label, read, applies, unit]) => mark(label, read, applies, p, unit));
+
+  const missing = clusterFields.filter(f => f.applicable && !f.present).map(f => f.label);
+  const nodeMissing = Object.fromEntries(Object.entries(nodeFields).map(([name, fields]) => [name, fields.filter(f => f.applicable && !f.present).map(f => f.label)]));
+  const total = clusterFields.filter(f => f.applicable).length + Object.values(nodeFields).reduce((n, fields) => n + fields.filter(f => f.applicable).length, 0);
   const absent = missing.length + Object.values(nodeMissing).reduce((n, list) => n + list.length, 0);
-  c.completeness = {missing, nodeMissing, documented: total - absent, total, percent: Math.round(((total - absent) / total) * 100)};
+  c.completeness = {missing, nodeMissing, clusterFields, nodeFields, documented: total - absent, total, percent: total ? Math.round(((total - absent) / total) * 100) : 100};
 }

@@ -13,6 +13,7 @@
 //      to display, which is how a fact gets silently dropped from the UI.
 import assert from 'node:assert/strict';
 import {clusters} from '../dist/data.js';
+import {CLUSTER_FIELD_KEYS, PART_FIELD_KEYS} from '../dist/enrich.js';
 
 const failures=[];
 const fail=m=>failures.push(m);
@@ -34,15 +35,29 @@ for(const c of clusters){
   }
 }
 
-// 3. No undocumented cluster/part field that the interface cannot show.
-// The registry lives in app.js; these are the keys app.js and the other modules
-// are known to consume, plus structural keys.
-const STRUCTURAL=new Set(['aliases','benchmark','checked','completeness','country','id','network','notes','parts','platform','profileScope','rank','rmax','site','sources','topology']);
-const RENDERED=new Set(['name','count','cpu','cpus','coresPerSocket','gpu','gpus','ram','vram','link','hostLink','disk','systemModel','nic','nicModel','nicSpeed','nicTopology','scaleOut','aggregateScaleOut','gpuDirect','onNodeFabric','managementNic','nvme','remoteDisks','diskIops','diskThroughputMBps','physicalCores','cpuNote','formFactor','platformFacts','apu','paired','mixed','noGpuLinks','compact','groupSize','acceleratorLabel','detail']);
-const KNOWN_CLUSTER=new Set([...STRUCTURAL,'name','manufacturer','os','cores','rpeak','powerKw','efficiency','hardwareDescription','platform','interconnectDetails']);
-for(const c of clusters){
-  for(const key of Object.keys(c))if(!KNOWN_CLUSTER.has(key))fail(`${c.id}: unclassified cluster field "${key}" — add it to the interface registry or the audit allow-list`);
-  for(const p of c.parts)for(const key of Object.keys(p))if(!RENDERED.has(key))fail(`${c.id}: unclassified node field "${key}" — add it to the interface registry or the audit allow-list`);
+// 3. Every valued field must be reachable in the interface. The specification
+// sheets render only from the completeness registry in enrich.js, so a field
+// carrying a value that has no registry entry would silently disappear from the
+// site. This is checked against the exported key sets, not a hand-written list,
+// so adding a field to the data without registering it fails the build.
+const STRUCTURAL = new Set(['id', 'name', 'aliases', 'sources', 'notes', 'parts', 'profileScope',
+  'checked', 'site', 'country', 'network', 'topology', 'rank', 'rmax', 'rpeak', 'powerKw', 'efficiency',
+  'os', 'manufacturer', 'cores', 'hardwareDescription', 'completeness', 'platform', 'benchmark']);
+const STRUCTURAL_PART = new Set(['name', 'apu', 'paired', 'mixed', 'noGpuLinks', 'compact', 'groupSize',
+  'acceleratorLabel', 'platformFacts', 'scaleOut', 'detail', 'sockets']);
+for (const c of clusters) {
+  for (const key of Object.keys(c)) {
+    const v = c[key];
+    if (STRUCTURAL.has(key) || v == null || v === '' || typeof v === 'object') continue;
+    if (!CLUSTER_FIELD_KEYS.has(key)) fail(`${c.id}: cluster field "${key}" has a value but no registry entry, so it would never be shown`);
+  }
+  for (const p of c.parts) {
+    for (const key of Object.keys(p)) {
+      const v = p[key];
+      if (STRUCTURAL_PART.has(key) || v == null || v === '' || typeof v === 'object') continue;
+      if (!PART_FIELD_KEYS.has(key)) fail(`${c.id}/${p.name}: node field "${key}" has a value but no registry entry, so it would never be shown`);
+    }
+  }
 }
 
 if(failures.length){
