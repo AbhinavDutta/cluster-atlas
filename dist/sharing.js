@@ -1,4 +1,5 @@
-const esc=s=>String(s??'Not verified').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=v=>typeof v==='string'&&/^not verified$/i.test(v)?'Not publicly available':v;
+const esc=s=>String(s==null?'Not publicly available':norm(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function readView(hash,clusters){
  const [id,query='']=hash.replace(/^#/,'').split('?');const c=clusters.find(c=>c.id===id);if(!c)return null;
  const q=new URLSearchParams(query),integer=(v,max)=>{const n=Number(v);return Number.isInteger(n)&&n>=0&&n<max?n:0;};

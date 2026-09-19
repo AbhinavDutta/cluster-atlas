@@ -59,5 +59,9 @@ export const rankedMetrics = {
   47: ['Supermicro', 483840, 99.12, null, 'Ubuntu 22.04.5 LTS'],
   48: ['Microsoft', 445440, 86.99, null, null],
   49: ['Bull', 227136, 71.42, null, 'Red Hat Enterprise Linux'],
-  50: ['HPE', 146304, 67.44, null, 'Ubuntu 22.04.5 LTS']
+  50: ['HPE', 146304, 67.44, null, 'Ubuntu 22.04.5 LTS'],
+  // Reindeer is profiled as a curated cluster rather than imported into top50.js.
+  // Its ranked rows are still recorded here so the benchmark strip and coverage
+  // audit see the published columns.
+  57: ['Microsoft', 138240, 56.42, null, 'Ubuntu 22.04']
 };

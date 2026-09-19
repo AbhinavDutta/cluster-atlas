@@ -13,7 +13,7 @@ S("perlmutter","Perlmutter","NERSC · Berkeley Lab","United States",null,null,"H
 ],[source("NERSC · architecture","https://docs.nersc.gov/systems/perlmutter/architecture/")],"Compute nodes only. GPU groups contain 64 nodes; CPU groups contain 256. Network has 16 switches per group. Overview samples groups, not physical cable routes."),
 S("lineshine","LineShine","National Supercomputing Centre · Shenzhen","China",1,2198.4,"LingQi","Not verified",[
  P("LX2 compute",null,"LX2 · 304 cores · 1.55 GHz",null,null,0,"Not verified",null)
-],[],"TOP500 verifies the processor and fabric. Node count, socket count, memory and topology are not yet verified in this catalog; only a representative node is shown."),
+],[],"TOP500 publishes the processor and fabric. Node count, socket count, memory and topology are not available from the sources we could verify; only a representative node is shown."),
 S("el-capitan","El Capitan","Lawrence Livermore National Laboratory","United States",2,1809,"HPE Slingshot 11","Dragonfly",[
  P("MI300A compute",11520,"AMD Zen 4 · 24 cores per APU",4,"AMD MI300A",4,"512 GiB unified HBM3","Shared with CPU","Infinity Fabric",{apu:true,hostLink:"On-package Infinity Fabric",nic:4})
 ],[source("LLNL · hardware overview","https://hpc.llnl.gov/documentation/user-guides/using-el-capitan-systems/hardware-overview")],"Four APUs per node: each combines CPU and GPU with 128 GiB shared memory. Installed node count differs from the benchmark configuration."),
@@ -28,7 +28,7 @@ S("jupiter","JUPITER Booster","Jülich Supercomputing Centre","Germany",5,1000,"
 ],[source("JSC · configuration","https://apps.fz-juelich.de/jsc/hps/jupiter/configuration.html"),source("JSC · network topology","https://www.fz-juelich.de/en/jsc/jupiter/tech")],"Booster module only. Each Grace CPU is paired with a Hopper GPU; the Cluster module is outside this profile."),
 S("hpc7","HPC7","Eni · Green Data Center","Italy",6,571.5,"HPE Slingshot 11","Not verified",[
  P("MI300A compute",null,"AMD Zen 4 · 24 cores per APU",4,"AMD MI300A",4,"Not verified","Unified HBM3; capacity not verified","Infinity Fabric",{apu:true,hostLink:"On-package Infinity Fabric"})
-],[source("Eni · HPC7 announcement","https://www.eni.com/en-IT/media/press-release/2026/06/eni-ranks-as-world-s-leading-company-top500-global-ranking.html")],"Eni reports over 3,400 nodes. Exact installed count is not verified here, so a representative node is shown."),
+],[source("Eni · HPC7 announcement","https://www.eni.com/en-IT/media/press-release/2026/06/eni-ranks-as-world-s-leading-company-top500-global-ranking.html")],"Eni reports over 3,400 nodes. The exact installed count is not published, so a representative node is shown."),
 S("eagle","Eagle","Microsoft Azure","United States",7,561.2,"NVIDIA InfiniBand NDR","Not verified",[
  P("ND H100 v5",null,"Intel Xeon Platinum 8480C",null,"NVIDIA H100",8,"1,900 GiB (VM specification)","80 GB per GPU","NVLink 4 · all GPU pairs through NVSwitch",{
   hostLink:"PCIe 5.0",
@@ -48,10 +48,10 @@ S("eagle","Eagle","Microsoft Azure","United States",7,561.2,"NVIDIA InfiniBand N
   gpuDirect:true,
   onNodeFabric:"NVLink 4 within the VM"
 })
-],[source("Microsoft · ND H100 v5","https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ndh100v5-series")],"The node model uses public ND H100 v5 VM specifications. Exact benchmark VM count, the physical host socket allocation behind the 96 reported vCPUs, and the scale-set topology are not verified."),
+],[source("Microsoft · ND H100 v5","https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ndh100v5-series")],"The node model uses public ND H100 v5 VM specifications. Exact benchmark VM count, the physical host socket allocation behind the 96 reported vCPUs, and the scale-set topology are not published."),
 S("hpc6","HPC6","Eni · Green Data Center","Italy",8,477.9,"HPE Slingshot","Not verified",[
  P("MI250X compute",3472,"AMD EPYC · 64 cores",1,"AMD Instinct MI250X",4,"Not verified","Not verified","Not verified")
-],[source("Eni · HPC6 technology","https://www.eni.com/visual-design/infographics/hpc6-longform/en/technology/")],"Installed configuration. Detailed memory and on-node wiring are not verified in this profile."),
+],[source("Eni · HPC6 technology","https://www.eni.com/visual-design/infographics/hpc6-longform/en/technology/")],"Installed configuration. Detailed memory and on-node wiring are not published in this profile."),
 S("fugaku","Fugaku","RIKEN Center for Computational Science","Japan",9,442.01,"Tofu interconnect D","6D mesh / torus",[
  P("A64FX compute",158976,"Fujitsu A64FX · 48 compute cores",1,null,0,"32 GiB HBM2",null,"Not applicable")
 ],[source("RIKEN · Fugaku","https://www.r-ccs.riken.jp/en/fugaku/about/index.html"),source("RIKEN · node specification","https://www.r-ccs.riken.jp/assets/uploads/2023/11/hpc_checklist_fugaku.pdf")],"The overview is a 2D projection of the 6D network, with omitted dimensions and wraparound links. Nodes connect through integrated network interfaces."),

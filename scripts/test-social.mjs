@@ -11,4 +11,4 @@ for(const path of ['index.html',...clusters.map(c=>'clusters/'+c.id+'/index.html
 }
 const png=await readFile(new URL('../dist/social-preview.png',import.meta.url));
 assert.equal(png.readUInt32BE(16),1200);assert.equal(png.readUInt32BE(20),630);
-console.log('PASS homepage and 64 cluster metadata, logo/favicon, 1200×630 preview.');
+console.log(`PASS homepage and ${clusters.length} cluster metadata, logo/favicon, 1200×630 preview.`);

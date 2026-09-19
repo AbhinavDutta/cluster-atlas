@@ -43,8 +43,13 @@ export function attachRankedMetrics(c) {
 // from a guessed similarity between system names.
 function platformFor(part, cluster) {
   const haystack = [part.name, part.specificationLabel, cluster.hardwareDescription, part.systemModel].filter(Boolean).join(' ');
-  if (/\bDGX H100\b|\bDGX H200\b|\bDGX SuperPOD\b/i.test(haystack)) return platforms.dgxH100;
+  if (/\bDGX B200\b/i.test(haystack)) return platforms.dgxB200;
+  if (/\bDGX H100\b|\bDGX H200\b/i.test(haystack)) return platforms.dgxH100;
   if (/\bDGX A100\b/i.test(haystack)) return platforms.dgxA100;
+  // GH200 is matched on the superchip name only. A bare "Grace" would also match
+  // Grace-Blackwell (GB200/GB300) systems, whose per-node layout differs, so it
+  // is not used as a trigger.
+  if (/\bGH200\b|Grace Hopper/i.test(haystack)) return platforms.gh200;
   return null;
 }
 
@@ -58,7 +63,7 @@ export function attachPlatform(c) {
     for (const src of platform.sources) if (!c.sources.some(s => s.url === src.url)) c.sources.push(src);
     for (const [key, value] of Object.entries(platform.spec)) if (!isSet(p[key])) p[key] = value;
     p.platformFacts = Object.keys(platform.spec);
-    if (i === 0) c.notes += ` Node specifications follow the documented ${platform.name} platform (${platform.formFactor}); operator-specific deviations are not verified.`;
+    if (i === 0) c.notes += ` Node specifications follow the documented ${platform.name} platform (${platform.formFactor}); operator-specific deviations are not published.`;
   });
 }
 

@@ -3,7 +3,8 @@ import {clusters,catalogDate} from '../dist/data.js';
 const root=new URL('../dist/',import.meta.url),origin='https://cluster-atlas-5rp.pages.dev';
 // Shared across every generated page so the favicon set stays consistent.
 const ICONS='<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">';
-const esc=s=>String(s??'Not verified').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=v=>typeof v==='string'&&/^not verified$/i.test(v)?'Not publicly available':v;
+const esc=s=>String(s==null?'Not publicly available':norm(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const template=await readFile(new URL('index.html',root),'utf8').then(s=>s.replace(/<!-- SOCIAL_META_START -->[\s\S]*?<!-- SOCIAL_META_END -->/,''));
 const links=clusters.map(c=>`<li><a href="/clusters/${c.id}">${esc(c.name)} architecture</a></li>`).join('');
 // Static pages mirror the in-app specification sheet: they list the fields that
@@ -13,7 +14,7 @@ const fmtVal=v=>typeof v==='boolean'?(v?'Yes':'No'):v;
 const rowsFor=(fields,scope='')=>fields.filter(f=>f.present).map(f=>`<div${scope?' class="'+scope+'"':''}><dt>${esc(f.label+(f.unit?' ('+f.unit+')':''))}</dt><dd>${esc(fmtVal(f.value))}</dd></div>`).join('');
 const ledgerFor=c=>{const groups=[{name:'Cluster',fields:c.completeness.clusterFields},...c.parts.map(p=>({name:p.name,fields:c.completeness.nodeFields[p.name]||[]}))];
  const cell=f=>{const state=f.applicable===false?'na':f.present?'present':'absent';const mark=state==='present'?'✓':state==='absent'?'✕':'–';return `<li class="${state}"><span class="mark" aria-hidden="true">${mark}</span>${esc(f.label+(f.unit?' ('+f.unit+')':''))}</li>`;};
- return `<h3>Documented fields: ${c.completeness.documented} / ${c.completeness.total}</h3><p>Every field this catalog checks. Fields listed above have a value; the remainder are shown here. A field marked absent is not published in the sources we could verify, which does not mean the hardware is missing. Fields that cannot apply, such as benchmark results for an unranked system, are excluded from the total.</p>${groups.map(g=>{const scored=g.fields.filter(f=>f.applicable!==false);return `<h4>${esc(g.name)} — ${scored.filter(f=>f.present).length} / ${scored.length}</h4><ul class="ledger-list">${g.fields.map(cell).join('')}</ul>`}).join('')}`;};
+ return `<h3>Documented fields: ${c.completeness.documented} / ${c.completeness.total}</h3><p>Every field this catalog checks. Fields listed above have a value; the remainder are shown here. A field marked absent is not publicly available in the sources we could verify, which does not mean the hardware is missing. Fields that cannot apply, such as benchmark results for an unranked system, are excluded from the total.</p>${groups.map(g=>{const scored=g.fields.filter(f=>f.applicable!==false);return `<h4>${esc(g.name)} — ${scored.filter(f=>f.present).length} / ${scored.length}</h4><ul class="ledger-list">${g.fields.map(cell).join('')}</ul>`}).join('')}`;};
 for(const c of clusters){
  const url=origin+'/clusters/'+c.id,title=c.name+' supercomputer architecture & node specifications | Cluster Atlas';
  const description=`Explore ${c.name} at ${c.site}: node CPUs, accelerators, memory and ${c.network} interconnect. Sourced architecture diagrams and comparison.`;

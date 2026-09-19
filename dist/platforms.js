@@ -35,6 +35,49 @@ export const platforms = {
       managementNic: '2 × ConnectX-7 dual-port Ethernet (storage and in-band management) + 1 GbE BMC'
     }
   },
+  dgxB200: {
+    name: 'NVIDIA DGX B200',
+    formFactor: '10U rackmount, 6 × 3.3 kW power supplies (5+1 redundant), 14.3 kW maximum',
+    sources: [
+      {title: 'NVIDIA · DGX B200 user guide, introduction', url: 'https://docs.nvidia.com/dgx/dgxb200-user-guide/introduction-to-dgxb200.html'},
+      {title: 'NVIDIA · DGX B200 system specifications', url: 'https://www.nvidia.com/en-us/data-center/dgx-b200/'}
+    ],
+    spec: {
+      systemModel: 'NVIDIA DGX B200',
+      formFactor: '10U rackmount · 6 × 3.3 kW power supplies (5+1 redundant) · 14.3 kW maximum',
+      cpus: 2,
+      cpu: 'Intel Xeon Platinum 8570 · 56 cores (2.1 / 4.0 GHz base / max turbo)',
+      gpus: 8,
+      vram: '180 GB HBM3e per GPU · 1,440 GB total',
+      ram: '2 TB DDR5 (32 DIMMs, upgradable to 4 TB)',
+      link: 'NVLink 5 · all GPU pairs',
+      onNodeFabric: 'NVLink 5 through 2 × 5th-generation NVSwitch, 14.4 TB/s aggregate GPU bandwidth',
+      hostLink: 'PCIe Gen5',
+      disk: '2 × 1.92 TB NVMe M.2 SSD in RAID 1 (OS) + 8 × 3.84 TB NVMe U.2 SSD in RAID 0 (data cache)',
+      nic: 8,
+      nicModel: 'NVIDIA ConnectX-7 single-port InfiniBand',
+      nicSpeed: '400 Gb/s InfiniBand per adapter',
+      nicTopology: 'One adapter per GPU',
+      managementNic: '2 × BlueField-3 DPU dual-port (storage and in-band management)'
+    }
+  },
+  // The GB200/GB300-class and GH200 "superchip" platforms are deliberately
+  // partial. NVIDIA publishes the chip itself, but the number of superchips (or
+  // Grace-Blackwell units) per node, the node count, the memory variant and the
+  // rack fabric are chosen by the operator and differ between installations, so
+  // they are never filled from a platform default.
+  gh200: {
+    name: 'NVIDIA GH200 Grace Hopper Superchip',
+    formFactor: 'Superchip module — nodes per system and per-node superchip counts are operator-specific',
+    sources: [
+      {title: 'NVIDIA · GH200 Grace Hopper Superchip', url: 'https://www.nvidia.com/en-us/data-center/grace-hopper-superchip/'},
+      {title: 'NVIDIA · NVLink-C2C', url: 'https://www.nvidia.com/en-us/data-center/nvlink-c2c/'}
+    ],
+    spec: {
+      cpu: 'NVIDIA Grace · 72 Arm Neoverse V2 cores',
+      hostLink: 'NVLink-C2C · 900 GB/s coherent CPU ↔ GPU'
+    }
+  },
   dgxA100: {
     name: 'NVIDIA DGX A100',
     formFactor: '6U rackmount',

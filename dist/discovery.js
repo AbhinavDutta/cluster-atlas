@@ -1,5 +1,6 @@
 import {acceleratorModels} from './accelerators.js';
-const esc=s=>String(s??'Not verified').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=v=>typeof v==='string'&&/^not verified$/i.test(v)?'Not publicly available':v;
+const esc=s=>String(s==null?'Not publicly available':norm(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const euro={program:'EuroHPC',eligibility:'Proposal-based research access; geographic, project and call conditions apply.',url:'https://www.eurohpc-ju.europa.eu/eurohpc-ju-call-proposals-regular-access-mode_en',policy:'https://eurohpc-ju.europa.eu/access-our-supercomputers/access-policy-and-faq_en'};
 export const researchAccess=Object.fromEntries(['jupiter','lumi','leonardo','marenostrum-5-acc','arrhenius-gpu'].map(id=>[id,euro]));
 researchAccess.perlmutter={program:'NERSC / ERCAP',eligibility:'For research aligned with DOE Office of Science missions; allocation approval is required.',url:'https://www.nersc.gov/users/become-a-nersc-user/working-with-us',policy:'https://docs.nersc.gov/allocations/ercap_form/'};
