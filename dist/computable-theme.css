@@ -79,3 +79,139 @@ main{align-self:start;margin:0 auto}.clusterhead{margin-bottom:16px}.workspace+.
 .cluster-reference .ledger-list li.na .mark{color:var(--line)}
 .cluster-reference dl>div.platformfact dt:after{content:' ▧';font-size:10px;color:var(--teal)}
 .cluster-reference h4{font-size:14px;margin:16px 0 2px}
+
+/* ============================================================ visual layer
+   Tokens and components for the three cluster views. Colour here is the one
+   place in the interface that encodes data rather than decorating it: the six
+   chart slots identify node types and nothing else. Text keeps its ink tokens
+   throughout, so a colour never has to be read to get a value.
+
+   The categorical order below is validated in both modes (adjacent-pair CVD
+   ΔE ≥ 8, normal-vision ΔE ≥ 15). Slots 1, 5 and 6 fall under 3:1 against the
+   light surface, so every band that uses them carries a visible direct label —
+   identity is never colour alone. */
+:root{
+ --chart-1:#1baf7a;--chart-2:#2a78d6;--chart-3:#eb6834;--chart-4:#4a3aa7;--chart-5:#eda100;--chart-6:#e87ba4;
+ --slot-line:#b0b4bb;--slot-ink:#8b9099;--grid-line:#dfe3e6;
+ --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;
+ --r-1:6px;--r-2:9px;--r-3:12px;--r-4:16px}
+:root[data-theme="dark"]{
+ --chart-1:#199e70;--chart-2:#3987e5;--chart-3:#d95926;--chart-4:#9085e9;--chart-5:#c98500;--chart-6:#d55181;
+ --slot-line:#565a5e;--slot-ink:#8d9298;--grid-line:#2f3132}
+.t1{fill:var(--chart-1)}.t2{fill:var(--chart-2)}.t3{fill:var(--chart-3)}.t4{fill:var(--chart-4)}.t5{fill:var(--chart-5)}.t6{fill:var(--chart-6)}
+.s1{background:var(--chart-1)}.s2{background:var(--chart-2)}.s3{background:var(--chart-3)}.s4{background:var(--chart-4)}.s5{background:var(--chart-5)}.s6{background:var(--chart-6)}
+
+/* An unpublished fact, drawn once and the same way everywhere. It takes the
+   footprint the real thing would have had, so the gap has a shape. */
+.slotUnknown rect{fill:none;stroke:var(--slot-line);stroke-width:1.2;stroke-dasharray:4 4}
+.slotMark{fill:var(--slot-ink);font-family:var(--mono);font-size:13px;font-weight:500}
+.slotLabel{fill:var(--slot-ink);font-family:var(--mono);font-size:8.5px;letter-spacing:.04em}
+.slotUnknown[role="button"]{cursor:pointer}
+.slotUnknown[role="button"]:hover rect{stroke:var(--teal);stroke-dasharray:none}
+
+/* Peer bar: one value inside the catalog's own distribution. The track is
+   recessive, the fill is a thin mark with rounded data-ends, and the percentile
+   is stated in text so the bar is never the only carrier. */
+.peer{display:flex;align-items:center;gap:var(--sp-2);margin-top:5px}
+.peertrack{flex:1;min-width:60px;height:4px;border-radius:2px;background:var(--grid-line);overflow:hidden}
+.peerfill{height:100%;border-radius:2px;background:var(--teal)}
+.peerlabel{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.peerunit{opacity:.72}
+
+/* ---- Network view: inventory spine + fabric band */
+.spinewrap{display:flex;flex-direction:column;height:100%}
+.spinehead{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2) var(--sp-4);padding:var(--sp-3) var(--sp-4) 0;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted)}
+.spinehead b{color:var(--ink);font-weight:500;font-size:11px}
+.spinelegend{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);padding:0 var(--sp-4) var(--sp-3);margin-top:auto}
+.spinelegend button{display:flex;align-items:center;gap:7px;background:transparent;border:0;padding:4px 0;font-size:12px;color:var(--ink);cursor:pointer;text-align:left}
+.spinelegend button:hover{background:transparent;color:var(--teal)}
+.spinelegend .swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.spinelegend .swatch.unknownswatch{background:transparent;border:1.2px dashed var(--slot-line)}
+.spinelegend small{color:var(--muted);font-family:var(--mono);font-size:10px}
+.spinesvg text{font-family:var(--mono)}
+.fabricband{fill:none;stroke:var(--grid-line);stroke-width:1;stroke-dasharray:3 3}
+.fabricname{fill:var(--ink);font-size:11px;font-family:var(--mono);letter-spacing:.04em}
+.fabricnote{fill:var(--muted);font-size:9px;font-family:var(--mono)}
+.switchnode{fill:var(--surface);stroke:var(--teal);stroke-width:1.3}
+.fabriclink{fill:none;stroke:var(--teal);stroke-opacity:.5}
+.grouphull{fill:var(--selected);stroke:var(--teal);stroke-width:1.1;fill-opacity:.55}
+.fabrictoggle{display:flex;gap:var(--sp-1);align-items:center}
+
+/* ---- Node view: links carry weight, memory carries size */
+.nodesvg .linkrate{fill:var(--muted);font-size:8.5px;font-family:var(--mono)}
+.nodesvg .dim{opacity:.22}
+.nodesvg .lit{stroke-opacity:1}
+.nodesvg .capbar{fill:var(--teal);fill-opacity:.2}
+.linklegend button .w{display:inline-block;width:20px;height:0;border-top-style:solid;border-top-color:currentColor;margin-right:6px;vertical-align:middle}
+.legendscale{font-family:var(--mono);font-size:9.5px;line-height:1.5;color:var(--muted);padding:2px var(--sp-4) var(--sp-2)}
+
+/* ---- Specifications: grouped by what a reader is looking for */
+.specgroups{display:grid;gap:var(--sp-3)}
+.specgroup{border:1px solid var(--line);border-radius:var(--r-3);background:var(--surface);overflow:hidden}
+.specgroup>h3{display:flex;align-items:center;gap:var(--sp-2);margin:0;padding:var(--sp-3) var(--sp-4);background:var(--soft);font:500 12px/1 var(--mono);letter-spacing:.06em;color:var(--ink);border-bottom:1px solid var(--line)}
+.specgroup>h3 .gcount{margin-left:auto;color:var(--muted);font-size:10px}
+.specrows{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--line)}
+.specrow{background:var(--surface);padding:var(--sp-3) var(--sp-4);min-width:0}
+.specrow .k{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.specrow .v{display:block;font-size:14px;color:var(--ink);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.specrow.platformfact .k:after{content:' ▧';color:var(--teal)}
+.specrow.gap .v{color:var(--muted)}
+.specscope{font-size:12px;color:var(--muted);padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--line);line-height:1.6}
+
+/* Coverage meter replaces a 34-item tick list as the headline; the list stays
+   behind the disclosure for anyone who wants to audit it. */
+.coverage{border:1px solid var(--line);border-radius:var(--r-3);background:var(--surface);overflow:hidden}
+.coverage summary{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-4);cursor:pointer;list-style:none}
+.coverage summary::-webkit-details-marker{display:none}
+.coveragefig{font-family:var(--mono);font-size:19px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.coveragemeter{flex:1;min-width:80px;height:6px;border-radius:3px;background:var(--grid-line);overflow:hidden;display:flex}
+.coveragemeter i{display:block;height:100%;background:var(--teal);border-radius:3px}
+.coveragelabel{font-size:12px;color:var(--muted)}
+.coverage .chevron{color:var(--muted)}
+.coveragebody{padding:0 var(--sp-4) var(--sp-4);border-top:1px solid var(--line)}
+@media(max-width:650px){
+ .specrows{grid-template-columns:1fr}
+ .spinehead,.spinelegend{padding-left:var(--sp-3);padding-right:var(--sp-3)}
+ .coverage summary{flex-wrap:wrap}
+}
+.spinesvg{flex:1;min-height:0;width:100%;display:block;user-select:none}
+.spinelegend-gap{display:flex;align-items:center;gap:7px;padding:4px 0}
+.spinelegend button[aria-current]{color:var(--teal);font-weight:500}
+/* Host memory against total accelerator memory, to scale. Two bars beat two
+   numbers in a list: the ratio is the thing a reader is checking. */
+.memstrip{display:grid;gap:6px;padding:var(--sp-2) var(--sp-4) 0}
+.membar{display:flex;align-items:center;gap:var(--sp-3);font-size:12px}
+.memk{color:var(--muted);min-width:0;flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.memtrack{flex:1;min-width:60px;height:7px;border-radius:4px;background:var(--grid-line);overflow:hidden}
+.memtrack i{display:block;height:100%;border-radius:4px}
+.memv{font-family:var(--mono);font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:650px){.membar{flex-wrap:wrap;gap:4px}.memtrack{order:3;flex-basis:100%}}
+/* The node view carries a diagram plus a legend, a memory strip and a note. The
+   diagram is the elastic part, so it yields space rather than pushing the
+   explanation out of a fixed-height panel. */
+.insidewrap{display:flex;flex-direction:column;height:100%;gap:2px}
+.insidewrap{overflow:auto}
+.insidewrap .nodesvg{flex:1 1 auto;min-height:250px;height:auto}
+.insidewrap .linklegend{flex:0 0 auto}
+.legendscale{margin:0}
+.scalenote{margin:0;padding:0 var(--sp-4) var(--sp-2)}
+.coverage[open] .chevron{transform:rotate(180deg)}
+.coverage .chevron{transition:transform .15s;display:inline-block}
+
+/* The node count is a figure with context, not a field of squares. */
+.netstat{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-3) var(--sp-5);padding:var(--sp-3) var(--sp-4) 0}
+.netfig{display:flex;align-items:baseline;gap:var(--sp-3)}
+.netfig label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted)}
+.netfig strong{font-size:26px;font-weight:500;letter-spacing:-.8px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.netstat .peer{flex:1;min-width:150px;max-width:340px;margin-top:0}
+/* One bar carries the partition mix that a single number cannot. */
+.compbar{display:flex;gap:2px;height:10px;margin:var(--sp-3) var(--sp-4) 0;border-radius:5px;overflow:hidden}
+.compbar i{display:block;border-radius:2px}
+@media(max-width:650px){.netstat{padding:var(--sp-3) var(--sp-3) 0}.compbar{margin:var(--sp-3) var(--sp-3) 0}}
+/* An unpublished topology gets a band, not the whole canvas. */
+.spinewrap.compactfabric .spinesvg{flex:0 0 auto;height:210px}
+.netfacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:var(--sp-3)}
+.netfact{background:var(--surface);padding:var(--sp-3) var(--sp-4);min-width:0}
+.netfact small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--muted);margin-bottom:3px}
+.netfact strong{display:block;font-size:13px;font-weight:400;color:var(--ink);overflow-wrap:anywhere}
+.specrow.derivedfact .k:after{content:' ↩';color:var(--muted);font-size:10px}
