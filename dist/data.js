@@ -1,30 +1,41 @@
 import {top50} from './top50.js';
 import {extraClusters,enrichRanked} from './catalog-expansion.js';
 import {enrichCluster} from './enrich.js';
+import {applyEnrichment} from './enrichment.js';
 import {source} from './sources.js';
 const TOP=source("TOP500 · June 2026","https://www.top500.org/lists/top500/2026/06/");
 const P=(name,count,cpu,cpus,gpu,gpus,ram,vram,link="Not verified",extra={})=>({name,count,cpu,cpus,gpu,gpus,ram,vram,link,disk:"Not verified",hostLink:"Not verified",...extra});
-const S=(id,name,site,country,rank,rmax,network,topology,parts,sources,notes="")=>({id,name,site,country,rank,rmax,network,topology,parts,sources:[...(rank?[TOP]:[]),...sources],notes});
+const S=(id,name,site,country,rank,rmax,network,topology,parts,sources,notes="",extra={})=>({id,name,site,country,rank,rmax,network,topology,parts,sources:[...(rank?[TOP]:[]),...sources],notes,...extra});
 export const clusters=[
 S("perlmutter","Perlmutter","NERSC · Berkeley Lab","United States",null,null,"HPE Slingshot 11 · 200 Gb/s per NIC","Dragonfly",[
  P("GPU · A100 40 GB",1536,"AMD EPYC 7763 · 64 cores",1,"NVIDIA A100",4,"256 GB DDR4","40 GB HBM2 per GPU","NVLink 3 · all GPU pairs",{hostLink:"PCIe 4.0",nic:4,groupSize:64,disk:"Shared Lustre scratch; local compute disk not documented"}),
  P("GPU · A100 80 GB",256,"AMD EPYC 7763 · 64 cores",1,"NVIDIA A100",4,"256 GB DDR4","80 GB HBM2e per GPU","NVLink 3 · all GPU pairs",{hostLink:"PCIe 4.0",nic:4,groupSize:64}),
  P("CPU only",3072,"AMD EPYC 7763 · 64 cores",2,null,0,"512 GB DDR4",null,"Not applicable",{hostLink:"PCIe 4.0",nic:1,groupSize:256})
-],[source("NERSC · architecture","https://docs.nersc.gov/systems/perlmutter/architecture/")],"Compute nodes only. GPU groups contain 64 nodes; CPU groups contain 256. Network has 16 switches per group. Overview samples groups, not physical cable routes."),
+],[source("NERSC · architecture","https://docs.nersc.gov/systems/perlmutter/architecture/")],"Compute nodes only. GPU groups contain 64 nodes; CPU groups contain 256. Network has 16 switches per group. Overview samples groups, not physical cable routes.",{os:"HPE Cray OS"}),
 S("lineshine","LineShine","National Supercomputing Centre · Shenzhen","China",1,2198.4,"LingQi","Not verified",[
  P("LX2 compute",null,"LX2 · 304 cores · 1.55 GHz",null,null,0,"Not verified",null)
 ],[],"TOP500 publishes the processor and fabric. Node count, socket count, memory and topology are not available from the sources we could verify; only a representative node is shown."),
 S("el-capitan","El Capitan","Lawrence Livermore National Laboratory","United States",2,1809,"HPE Slingshot 11","Dragonfly",[
- P("MI300A compute",11520,"AMD Zen 4 · 24 cores per APU",4,"AMD MI300A",4,"512 GiB unified HBM3","Shared with CPU","Infinity Fabric",{apu:true,hostLink:"On-package Infinity Fabric",nic:4})
+ P("MI300A compute",11520,"AMD Zen 4 · 24 cores per APU",4,"AMD MI300A",4,"512 GiB unified HBM3","Shared with CPU","Infinity Fabric",{apu:true,hostLink:"On-package Infinity Fabric",nic:4,
+  onNodeFabric:"AMD Infinity Fabric — each APU fully connected to its peers by two links at 256 GB/s",
+  nicModel:"HPE Slingshot 11",nicSpeed:"200 Gb/s (25 GB/s) per interface · 100 GB/s node injection",
+  formFactor:"90 compute cabinets (HPE Cray EX4000 with EX255a accelerator blades)"})
 ],[source("LLNL · hardware overview","https://hpc.llnl.gov/documentation/user-guides/using-el-capitan-systems/hardware-overview")],"Four APUs per node: each combines CPU and GPU with 128 GiB shared memory. Installed node count differs from the benchmark configuration."),
 S("frontier","Frontier","Oak Ridge National Laboratory","United States",3,1353,"HPE Slingshot 11 · 200 Gb/s per NIC","Dragonfly",[
- P("MI250X compute",9856,"AMD optimized EPYC · 64 cores",1,"AMD Instinct MI250X",4,"512 GB DDR4","128 GB HBM2e per accelerator","Infinity Fabric",{hostLink:"Infinity Fabric",nic:4,disk:"2 × 1.92 TB NVMe SSD"})
+ P("MI250X compute",9856,"AMD optimized EPYC · 64 cores",1,"AMD Instinct MI250X",4,"512 GB DDR4","128 GB HBM2e per accelerator","Infinity Fabric",{hostLink:"Infinity Fabric · 36+36 GB/s CPU ↔ GCD",nic:4,disk:"2 × 1.92 TB NVMe SSD",
+  onNodeFabric:"Infinity Fabric — 200 GB/s between the two GCDs of one MI250X; 50–100 GB/s between GCDs on different MI250X depending on link count",
+  nicModel:"HPE Slingshot 11",nicSpeed:"200 Gb/s (25 GB/s) per NIC · 800 Gb/s node injection",
+  formFactor:"77 Olympus HPE Cray EX cabinets, 128 nodes per cabinet"})
 ],[source("OLCF · Frontier user guide","https://docs.olcf.ornl.gov/systems/frontier_user_guide.html")],"Each MI250X has two GPU compute dies: four physical accelerators appear as eight logical GPU devices. Diagram counts physical accelerators."),
 S("aurora","Aurora","Argonne National Laboratory","United States",4,1012,"HPE Slingshot 11 · 200 Gb/s per endpoint","Dragonfly",[
  P("GPU Max compute",10624,"Intel Xeon CPU Max 9470 · 52 cores",2,"Intel Data Center GPU Max",6,"1,024 GB DDR5 + 128 GB CPU HBM","128 GB HBM per GPU","Xe Link",{hostLink:"PCIe",nic:8})
-],[source("ALCF · Aurora","https://www.alcf.anl.gov/aurora")],"Six physical GPUs per node, each with two tiles. On-node links are summarized; not an exact PCIe switch map."),
+],[source("ALCF · Aurora","https://www.alcf.anl.gov/aurora")],"Six physical GPUs per node, each with two tiles. On-node links are summarized; not an exact PCIe switch map.",{os:"SUSE Linux Enterprise Server 15 SP4"}),
 S("jupiter","JUPITER Booster","Jülich Supercomputing Centre","Germany",5,1000,"InfiniBand NDR200 · 4 rails per node","Dragonfly+",[
- P("GH200 booster",5884,"NVIDIA Grace · 72 cores",4,"NVIDIA Hopper (GH200)",4,"480 GB LPDDR5X","96 GB HBM3 per GPU","NVLink 4 · all GPU pairs",{hostLink:"NVLink-C2C",nic:4,paired:true})
+ P("GH200 booster",5884,"NVIDIA Grace · 72 cores",4,"NVIDIA Hopper (GH200)",4,"480 GB LPDDR5X","96 GB HBM3 per GPU","NVLink 4 · all GPU pairs",{hostLink:"NVLink-C2C · 900 GB/s CPU ↔ GPU",nic:4,paired:true,
+  systemModel:"Eviden BullSequana XH3000",
+  onNodeFabric:"NVLink 4 — 300 GB/s between GPU pairs (150 GB/s per direction); cNVLink between CPUs at 100 GB/s bi-directional to each of the three neighbours",
+  nicModel:"NVIDIA ConnectX-7 (InfiniBand NDR200)",nicSpeed:"200 Gbit/s per HCA · 800 Gbit/s per node",
+  nicTopology:"A dedicated InfiniBand HCA per GH200 superchip, attached over PCIe Gen 5 to that superchip's Grace CPU"})
 ],[source("JSC · configuration","https://apps.fz-juelich.de/jsc/hps/jupiter/configuration.html"),source("JSC · network topology","https://www.fz-juelich.de/en/jsc/jupiter/tech")],"Booster module only. Each Grace CPU is paired with a Hopper GPU; the Cluster module is outside this profile."),
 S("hpc7","HPC7","Eni · Green Data Center","Italy",6,571.5,"HPE Slingshot 11","Not verified",[
  P("MI300A compute",null,"AMD Zen 4 · 24 cores per APU",4,"AMD MI300A",4,"Not verified","Unified HBM3; capacity not verified","Infinity Fabric",{apu:true,hostLink:"On-package Infinity Fabric"})
@@ -35,6 +46,7 @@ S("eagle","Eagle","Microsoft Azure","United States",7,561.2,"NVIDIA InfiniBand N
   systemModel:"Microsoft ND H100 v5 (Azure Standard_ND96isr_H100_v5)",
   physicalCores:96,
   cpuNote:"Microsoft states the instance has 96 physical 4th Gen Intel Xeon Scalable cores, while the VM size reports 96 vCPUs. The host socket layout behind that allocation is not published.",
+  vmSku:true,
   disk:"1,024 GiB temporary disk (VM specification)",
   nvme:"Up to 8 × 28 TiB NVMe data disks (VM specification)",
   remoteDisks:32,
@@ -48,15 +60,24 @@ S("eagle","Eagle","Microsoft Azure","United States",7,561.2,"NVIDIA InfiniBand N
   gpuDirect:true,
   onNodeFabric:"NVLink 4 within the VM"
 })
-],[source("Microsoft · ND H100 v5","https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ndh100v5-series")],"The node model uses public ND H100 v5 VM specifications. Exact benchmark VM count, the physical host socket allocation behind the 96 reported vCPUs, and the scale-set topology are not published."),
+],[source("Microsoft · ND H100 v5","https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ndh100v5-series")],"The node model uses public ND H100 v5 VM specifications. Exact benchmark VM count, the physical host socket allocation behind the 96 reported vCPUs, and the scale-set topology are not published.",{os:"Ubuntu 22.04"}),
 S("hpc6","HPC6","Eni · Green Data Center","Italy",8,477.9,"HPE Slingshot","Not verified",[
  P("MI250X compute",3472,"AMD EPYC · 64 cores",1,"AMD Instinct MI250X",4,"Not verified","Not verified","Not verified")
 ],[source("Eni · HPC6 technology","https://www.eni.com/visual-design/infographics/hpc6-longform/en/technology/")],"Installed configuration. Detailed memory and on-node wiring are not published in this profile."),
 S("fugaku","Fugaku","RIKEN Center for Computational Science","Japan",9,442.01,"Tofu interconnect D","6D mesh / torus",[
- P("A64FX compute",158976,"Fujitsu A64FX · 48 compute cores",1,null,0,"32 GiB HBM2",null,"Not applicable")
-],[source("RIKEN · Fugaku","https://www.r-ccs.riken.jp/en/fugaku/about/index.html"),source("RIKEN · node specification","https://www.r-ccs.riken.jp/assets/uploads/2023/11/hpc_checklist_fugaku.pdf")],"The overview is a 2D projection of the 6D network, with omitted dimensions and wraparound links. Nodes connect through integrated network interfaces."),
+ P("A64FX compute",158976,"Fujitsu A64FX · 48 compute cores",1,null,0,"32 GiB HBM2",null,"Not applicable",{
+  coresPerSocket:48,physicalCores:48,
+  cpuNote:"48 compute cores plus 2 assistant cores, arranged in 4 Core Memory Groups (NUMA nodes)",
+  nic:6,nicModel:"Tofu Network Interface (Tofu interconnect D)",
+  nicSpeed:"6.8 GB/s per TNI · 40.8 GB/s per node (28 Gbps × 2 lanes × 10 ports)",
+  formFactor:"2 nodes per CPU Memory Unit · 8 CMUs per Bunch of Blades (16 nodes) · 3 BoBs per shelf (48 nodes) · 8 shelves per rack (384 nodes) · 432 racks"})
+],[source("RIKEN · Fugaku","https://www.r-ccs.riken.jp/en/fugaku/about/index.html"),source("RIKEN · node specification","https://www.r-ccs.riken.jp/assets/uploads/2023/11/hpc_checklist_fugaku.pdf")],"The overview is a 2D projection of the 6D network, with omitted dimensions and wraparound links. Nodes connect through integrated network interfaces.",{os:"Red Hat Enterprise Linux 8 · McKernel lightweight kernel"}),
 S("alps","Alps","Swiss National Supercomputing Centre","Switzerland",10,434.9,"HPE Slingshot 11 · 200 Gb/s per GPU","Not verified",[
- P("GH200",2688,"NVIDIA Grace · 72 cores",4,"NVIDIA Hopper (GH200)",4,"512 GB LPDDR5X","96 GB HBM3 per GPU","NVLink",{hostLink:"NVLink-C2C",paired:true,nic:4}),
+ P("GH200",2688,"NVIDIA Grace · 72 cores",4,"NVIDIA Hopper (GH200)",4,"512 GB LPDDR5X","96 GB HBM3 per GPU","NVLink",{hostLink:"NVLink-C2C",paired:true,nic:4,
+  systemModel:"HPE Cray EX3000",
+  nicSpeed:"200 Gb/s injection bandwidth per Grace-Hopper module",
+  nicTopology:"Four Grace-Hopper modules per node with four corresponding network interface cards — a dedicated adapter per accelerator module",
+  formFactor:"24 cabinets in 4 rows · 8 chassis per cabinet · 7 blades per chassis · 2 nodes per blade · 112 nodes per cabinet"}),
  P("CPU · Rome",1024,"AMD EPYC 7742 · 64 cores",2,null,0,"256 / 512 GB DDR (variant unspecified)",null),
  P("A100",144,"AMD EPYC · 64 cores",1,"NVIDIA A100",4,"128 GB","80 / 96 GB (operator listing)"),
  P("MI300A",128,"AMD Zen 4 (MI300A)",4,"AMD MI300A",4,"Not verified","Unified memory","Infinity Fabric",{apu:true}),
@@ -81,6 +102,8 @@ for(const record of top50){
  else clusters.push(enrichRanked(record));
 }
 clusters.push(...extraClusters);
+// Researched detail that the generated ranking snapshot cannot carry.
+applyEnrichment(clusters);
 // Attach published ranking fields and documented platform specifications, then
 // record which public fields each profile is still missing.
 clusters.forEach(enrichCluster);

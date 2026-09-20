@@ -44,7 +44,7 @@ const STRUCTURAL = new Set(['id', 'name', 'aliases', 'sources', 'notes', 'parts'
   'checked', 'site', 'country', 'network', 'topology', 'rank', 'rmax', 'rpeak', 'powerKw', 'efficiency',
   'os', 'manufacturer', 'cores', 'hardwareDescription', 'completeness', 'platform', 'benchmark']);
 const STRUCTURAL_PART = new Set(['name', 'apu', 'paired', 'mixed', 'noGpuLinks', 'compact', 'groupSize',
-  'acceleratorLabel', 'platformFacts', 'scaleOut', 'detail', 'sockets']);
+  'acceleratorLabel', 'platformFacts', 'scaleOut', 'detail', 'sockets', 'vmSku']);
 for (const c of clusters) {
   for (const key of Object.keys(c)) {
     const v = c[key];

@@ -12,8 +12,8 @@ export const extraClusters=[
  C('stargate-abilene','Stargate · Abilene','OpenAI / Oracle Cloud Infrastructure','United States','OCI scale-out RDMA fabric; site-specific technology not published',[
  P('GB200 platform · partial site profile',null,'NVIDIA Grace',null,'NVIDIA Blackwell (GB200)',null,'Not verified','Not verified','NVLink within GB200 NVL72 racks',{hostLink:'NVLink-C2C'})
  ],[src('OpenAI · Abilene infrastructure','https://openai.com/index/building-the-compute-infrastructure-for-the-intelligence-age/'),src('Oracle · GB200 NVL72 architecture','https://blogs.oracle.com/cloud-infrastructure/behind-the-scenes-nvidia-gb200-nvl72-oci-apis')],'Abilene site only, not the entire Stargate initiative. OpenAI confirms OCI and GB200. Oracle documents 72 GPUs per NVL72 rack; a rack is not treated as one compute node. Exact site inventory, per-node configuration and scale-out fabric are not published.',{aliases:['stargate','openai stargate','stargate abilene'],profileScope:'Abilene site · partial public profile'}),
- C('colossus','Colossus','xAI','United States','NVIDIA Spectrum-X Ethernet / RDMA',[
- P('Hopper deployment · partial profile',null,'Not verified',null,'NVIDIA Hopper',null,'Not verified','Not verified')
+ C('colossus','Colossus','xAI','United States','NVIDIA Spectrum-X Ethernet / RDMA · Spectrum SN5600 switches, ports up to 800 Gb/s',[
+ P('Hopper deployment · partial profile',null,'Not verified',null,'NVIDIA Hopper',null,'Not verified','Not verified','Not verified',{nicModel:'NVIDIA BlueField-3 SuperNIC'})
  ],[src('NVIDIA · Colossus deployment, October 2024','https://nvidianews.nvidia.com/news/spectrum-x-ethernet-networking-xai-colossus')],'Historical October 2024 deployment snapshot: NVIDIA reported 100,000 Hopper GPUs in Memphis. This is not a current live inventory. Node count, CPUs, per-node accelerator count and memory are not published here.',{aliases:['xai colossus'],profileScope:'October 2024 deployment snapshot'}),
  C('meta-rsc','Meta Research SuperCluster','Meta','United States','NVIDIA Quantum InfiniBand · 1,600 Gb/s per node (2022 report)',[
  P('DGX A100 · 2022 first phase',760,'AMD EPYC 7742',2,'NVIDIA A100',8,'Not verified','Not verified','NVLink / NVSwitch',{hostLink:'PCIe 4.0'})
@@ -54,6 +54,7 @@ export const extraClusters=[
   systemModel:'Microsoft ND H200 v5 (Azure Standard_ND96isr_H200_v5)',
   physicalCores:96,
   cpuNote:'Microsoft lists 96 vCPUs for the ND H200 v5 size; the physical host socket layout behind that allocation is not published.',
+  vmSku:true,
   disk:'1,024 GiB temporary disk (VM specification)',
   nvme:'Up to 8 × 28 TiB NVMe data disks (VM specification)',
   remoteDisks:16,

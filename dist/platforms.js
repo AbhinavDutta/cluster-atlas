@@ -9,6 +9,61 @@
 // `spec` fields are shown only when the operator record does not already state
 // them. `source` is attached to any cluster that uses the platform.
 export const platforms = {
+  // OEM accelerator chassis. Unlike the DGX entries these are multi-option
+  // platforms: the chassis fixes the accelerator COUNT and the socket count, but
+  // the accelerator model, CPU SKU and memory are ordered per system. Only the
+  // fixed properties are recorded, so a platform fact never overwrites an
+  // operator's own configuration.
+  xe9680: {
+    name: 'Dell PowerEdge XE9680',
+    formFactor: '6U rack, two sockets, eight accelerators',
+    sources: [{title: 'Dell · PowerEdge XE9680 system configurations and features', url: 'https://www.dell.com/support/manuals/en-us/poweredge-xe9680/xe9680_ism_pub/dell-poweredge-xe9680-system-configurations-and-features'}],
+    spec: {
+      cpus: 2,
+      gpus: 8,
+      formFactor: '6U rack server · 6 power supply units (5+1 redundant)'
+    }
+  },
+  crayXd670: {
+    name: 'HPE Cray XD670',
+    formFactor: '5U single-node chassis, two sockets, eight SXM5 accelerators',
+    sources: [{title: 'HPE · Cray XD670 QuickSpecs', url: 'https://support.hpe.com/hpesc/public/docDisplay?docId=a50004292enw'}],
+    spec: {
+      cpus: 2,
+      gpus: 8,
+      formFactor: '5U single-node chassis · 6 Titanium power supplies (N+2)',
+      nicTopology: 'Eight PCIe Gen5 x16 half-height slots for GPUDirect RDMA network adapters'
+    }
+  },
+  proliantXd685: {
+    name: 'HPE ProLiant Compute XD685',
+    formFactor: '5U direct-liquid-cooled or 6U air-cooled chassis, two sockets, eight accelerators',
+    sources: [{title: 'HPE · ProLiant Compute XD685', url: 'https://buy.hpe.com/us/en/compute/rack-servers/proliant-compute-xd600-servers/proliant-compute-xd600-server/hpe-proliant-compute-xd685/p/1014862906'}],
+    spec: {
+      cpus: 2,
+      gpus: 8,
+      formFactor: '5U direct-liquid-cooled or 6U air-cooled chassis · 6 × 3000 W Titanium Plus (N+1)'
+    }
+  },
+  a22gaNbrt: {
+    // The only chassis of the four with a single accelerator option, so the model
+    // and its memory are fixed by the chassis rather than ordered.
+    name: 'Supermicro SYS-A22GA-NBRT',
+    formFactor: '10U rackmount, two sockets, NVIDIA HGX B200 8-GPU',
+    sources: [{title: 'Supermicro · SYS-A22GA-NBRT', url: 'https://www.supermicro.com/en/products/system/gpu/10u/sys-a22ga-nbrt'},
+      {title: 'NVIDIA · HGX platform', url: 'https://www.nvidia.com/en-us/data-center/hgx/'}],
+    spec: {
+      cpus: 2,
+      gpu: 'NVIDIA B200',
+      gpus: 8,
+      vram: '180 GB HBM3e per GPU',
+      link: 'NVLink 5 · all GPU pairs',
+      onNodeFabric: 'NVLink 5 through NVLink Switch — 1.8 TB/s GPU-to-GPU, 14.4 TB/s aggregate across the HGX B200 baseboard',
+      formFactor: '10U rackmount · 6 × 5250 W Titanium (3+3 redundant)',
+      nicTopology: 'PCIe 5.0 x16 slots 2–9 are the GPU-linked east-west backend network adapter slots'
+    }
+  },
+
   dgxH100: {
     name: 'NVIDIA DGX H100',
     formFactor: '8U rackmount, 6 × 3.3 kW power supplies (4+2 redundant)',
